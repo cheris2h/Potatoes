@@ -35,15 +35,14 @@ public class DiagnosisService {
 
         String aiAnswer = callAi(reportRequest);
 
-        String[] parts = aiAnswer.split("이상입니다.");
-        int weight = Integer.parseInt(parts[1].replaceAll("[^0-9]", ""));
+        int weight = extractWeight(aiAnswer);
 
         Report report = Report.builder()
                 .user(user)
                 .bodyPart(reportRequest.getBodyPart())
                 .symptomIcon(reportRequest.getSymptomIcon())
                 .intensity(reportRequest.getIntensity())
-                .aiDiagnosis(parts[0])
+                .aiDiagnosis(aiAnswer)
                 .weight(weight)
                 .build();
 
@@ -72,6 +71,23 @@ public class DiagnosisService {
         } catch (Exception e) {
             return "어르신, 지금 시스템에 잠시 문제가 생겼어요. 곧 다시 도와드릴게요.";
         }
+    }
+
+    private int extractWeight(String aiResponse) {
+        try {
+            String numbers = aiResponse.replaceAll("[^0-9]", " "); // 숫자가 아니면 공백으로 바꿈
+            String[] tokenized = numbers.trim().split("\\s+"); // 공백 기준으로 쪼갬
+
+            if (tokenized.length > 0) {
+                String lastNumber = tokenized[tokenized.length - 1];
+                int weight = Integer.parseInt(lastNumber);
+
+                return Math.min(Math.max(weight, 0), 100);
+            }
+        } catch (Exception e) {
+            return 50;
+        }
+        return 50;
     }
 
     public List<Report> getReportsByUserId(Long userId) {

@@ -77,22 +77,24 @@ const LevelDisplay = styled.div`
   .emoji { font-size: 56px; display: block; margin-bottom: 8px; }
   .label { font-size: 24px; font-weight: 800; color: ${props => props.$color}; }
 `;
+// ... 상단 import 및 스타일 코드는 동일 ...
 
 const Step2Level = () => {
   const navigate = useNavigate();
-  const { state } = useLocation();
+  const { state } = useLocation(); // Step 1에서 보낸 { bodyPart: "HEAD" } 등이 들어있음
   const [level, setLevel] = useState(3);
 
-  const selectedPart = state?.part || "몸체";
+  // 1. Step 1에서 넘겨준 데이터 확인 (없을 경우를 대비해 기본값 설정)
+  const selectedPart = state?.bodyPart || "BODY";
   const current = MOCK_LEVELS[level];
 
-  // 인체 모형 내 부위별 위치 (Step 1 좌표 대응)
+  // 2. 하이라이트 표시를 위한 매핑 (영문 Enum 값에 대응)
   const getHighlight = (part) => {
     switch(part) {
-      case "머리": return { cx: 100, cy: 70, r: 50 };
-      case "가슴/배": return { cx: 100, cy: 165, r: 60 };
-      case "팔": return { cx: 150, cy: 150, r: 50 };
-      case "다리": return { cx: 100, cy: 300, r: 70 };
+      case "HEAD": return { cx: 100, cy: 70, r: 50 };
+      case "CHEST": return { cx: 100, cy: 165, r: 60 };
+      case "ARM": return { cx: 150, cy: 150, r: 50 };
+      case "LEG": return { cx: 100, cy: 300, r: 70 };
       default: return { cx: 100, cy: 165, r: 80 };
     }
   };
@@ -102,7 +104,6 @@ const Step2Level = () => {
   return (
     <Layout title="상태 확인" showBack={true}>
       <ProgressBar step={2} />
-
       <Container>
         <ContentWrapper>
           <div style={{ textAlign: 'center' }}>
@@ -111,7 +112,6 @@ const Step2Level = () => {
           </div>
 
           <MiniBodyCard>
-            {/* 배경 인체 모형 */}
             <svg viewBox="0 0 200 400" style={{ width: '120px', height: '160px', opacity: 0.15 }}>
               <circle cx="100" cy="60" r="35" fill="#2d3436" />
               <rect x="60" y="105" width="80" height="120" rx="20" fill="#2d3436" />
@@ -121,7 +121,6 @@ const Step2Level = () => {
               <rect x="105" y="235" width="30" height="130" rx="15" fill="#2d3436" />
             </svg>
 
-            {/* 선택 부위 하이라이트 원 */}
             <svg viewBox="0 0 200 400" style={{ position: 'absolute', width: '120px', height: '160px' }}>
               <circle
                 cx={highlight.cx} cy={highlight.cy} r={highlight.r}
@@ -149,9 +148,14 @@ const Step2Level = () => {
           </SliderContainer>
         </ContentWrapper>
 
-        {/* 하단 고정 느낌을 주되 Container 안에서 적절히 배치 */}
         <div style={{ marginTop: 'auto', width: '100%' }}>
-          <BottomButton onClick={() => navigate('/step3', { state: { ...state, level: level } })}>
+          {/* 3. 다음 단계로 넘길 때 기존 state와 새로운 level(intensity)을 합침 */}
+          <BottomButton onClick={() => navigate('/step3', {
+            state: {
+              ...state,
+              intensity: String(level) // 백엔드 DTO가 String이면 변환해서 전송
+            }
+          })}>
             선택 완료
           </BottomButton>
         </div>
