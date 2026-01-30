@@ -11,16 +11,14 @@ const Container = styled.div`
   align-items: center;
   justify-content: center;
   padding: 20px;
-  /* 하단 버튼 위치를 고려하여 중앙을 잡아줍니다 */
   min-height: calc(100vh - 200px);
 `;
 
-// ProgressBar와 동일한 굵기(4px)와 느낌을 주는 회색 선
 const ThickDivider = styled.div`
   width: 100%;
-  height: 4px;             /* 선의 굵기를 Step1 ProgressBar와 맞춤 */
-  background-color: #F1F2F6; /* 부드러운 회색 */
-  margin: 0;               /* 레이아웃 바닥에 딱 붙게 설정 */
+  height: 4px;
+  background-color: #F1F2F6;
+  margin: 0;
 `;
 
 const IconWrapper = styled.div`
@@ -38,6 +36,7 @@ const TitleSection = styled.div`
     color: #2D3436;
     margin: 0;
   }
+
   p {
     color: #636E72;
     margin-top: 12px;
@@ -46,33 +45,54 @@ const TitleSection = styled.div`
   }
 `;
 
+const GrayButton = styled(BottomButton)`
+  background-color: #dfe6e9;
+  color: #2d3436;
+  margin-top: 12px;
+
+  &:hover {
+    background-color: #b2bec3;
+  }
+`;
+
+/* ✅ 버튼을 아래로 내리기 위한 래퍼 */
+const ButtonGroup = styled.div`
+  width: 100%;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  margin-top: 90px;
+`;
+
 const Home = () => {
   const navigate = useNavigate();
 
   return (
     <Layout title="홈" showBack={false}>
-      {/* 1. 홈 글자 바로 아래에 오는 굵은 회색 선 */}
       <ThickDivider />
 
       <Container>
-        {/* 2. 병원 이모티콘 */}
         <IconWrapper role="img" aria-label="hospital">
           🏥
         </IconWrapper>
 
-        {/* 3. 모두닥 타이틀 */}
         <TitleSection>
-          <h1>모두닥</h1>
+          <h1>아프닥</h1>
           <p>
             간편한 자가 진단으로<br />
             나의 건강 상태를 확인하세요.
           </p>
         </TitleSection>
 
-        {/* 4. 진료 시작 버튼 */}
-        <BottomButton onClick={() => navigate('/step1')}>
-          진료 시작
-        </BottomButton>
+        <ButtonGroup>
+          <BottomButton onClick={() => navigate('/step1')}>
+            진료 시작
+          </BottomButton>
+
+          <GrayButton onClick={() => navigate('/mypage')}>
+            마이페이지
+          </GrayButton>
+        </ButtonGroup>
       </Container>
     </Layout>
   );

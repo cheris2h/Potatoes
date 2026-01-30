@@ -9,7 +9,10 @@ public class WebConfig implements WebMvcConfigurer {
     @Override
     public void addCorsMappings(CorsRegistry registry) {
         registry.addMapping("/**")
-                .allowedOrigins("http://localhost:5173") // Vite 기본 포트
-                .allowedMethods("GET", "POST", "PUT", "DELETE");
+                // 같은 와이파이 공유하는 모든 컴퓨터 접근 허용
+                .allowedOriginPatterns("http://192.168.0.[*]:*", "http://localhost:*")
+                .allowedMethods("*") // 모든 요청 허용
+                .allowedHeaders("*")
+                .allowCredentials(true);
     }
 }

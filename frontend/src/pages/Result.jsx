@@ -145,9 +145,17 @@ const Result = () => {
         {/* 하단 버튼 세션 */}
         <div style={{ marginTop: '30px', width: '100%', display: 'flex', gap: '12px', maxWidth: '480px' }}>
           <BottomButton
+<<<<<<< HEAD
             style={{ flex: 1, backgroundColor: '#CBD5E0', color: '#4A5568' }}
             onClick={() => navigate('/')}
           >다시 하기</BottomButton>
+=======
+            style={{ flex: 1, backgroundColor: '#cbd5e0', color: '#4a5568' }}
+            onClick={() => navigate('/home')}
+          >
+            다시 하기
+          </BottomButton>
+>>>>>>> main
           <BottomButton
             style={{ flex: 2 }}
             onClick={() => alert('사진첩에 저장되었습니다!')}
