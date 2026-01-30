@@ -227,11 +227,12 @@
 | 이름   | 역할                 |
 | ------ | -------------------- |
 | 신영재 | - Leader, AI, BE <br>    |
-| 윤소연 | - FE <br>                 |
-| 고서영 | - BE <br>            |
-| 윤채린 | - BE, FE <br>            |
-| 신지우 | - FE, Docs<br> |
+| 윤소연 | - FE, UI/UX<br>                 |
+| 고서영 | - BE, Slides<br>            |
+| 윤채린 | - FE, BE, UI/UX <br>            |
+| 신지우 | - FE, Docs, UI/UX<br> |
 
 <br>
+
 
 
