@@ -11,7 +11,7 @@ public enum Gender {
 
     private final String korean;
 
-    public static Gender fromKorean(String koreanGender) {
+    public static Gender transportToGender(String koreanGender) {
         for (Gender gender : Gender.values()) {
             if (gender.korean.equals(koreanGender)) {
                 return gender;

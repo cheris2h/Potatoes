@@ -13,6 +13,6 @@ public class UserRequest {
     private String deviceId;
     private String name;
     private String birth;
-    private Character gender;
+    private String gender;
     private String emergencyContact;
 }
