@@ -29,7 +29,7 @@ public class DiagnosisService {
     private String model;
 
     @Transactional
-    public Long saveReport(ReportRequest reportRequest) {
+    public Report saveReport(ReportRequest reportRequest) {
         User user = userRepository.findById(reportRequest.getUserId())
                 .orElseThrow(() -> new IllegalArgumentException("존재하지 않는 사용자입니다. ID: " + reportRequest.getUserId()));
 
@@ -47,7 +47,7 @@ public class DiagnosisService {
                 .weight(weight)
                 .build();
 
-        return reportRepository.save(report).getId();
+        return reportRepository.save(report);
     }
 
     private String callAi(ReportRequest reportRequest) {
