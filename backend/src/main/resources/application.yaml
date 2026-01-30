@@ -28,4 +28,4 @@ spring:
 # Google 설정은 spring과 별개이므로 맨 밖으로!
 google:
   genai:
-    model: "gemini-1.5-flash"g
+    model: "gemini-1.5-flash"
