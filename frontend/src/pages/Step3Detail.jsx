@@ -68,36 +68,25 @@ const Step3Detail = () => {
     } else {
       setSelectedSymptoms([...selectedSymptoms, symptom]);
     }
-  };
+  };const handleNext = () => {
+      const partMapping = {
+        "머리": "HEAD", "가슴/배": "STOMACH", "팔": "ARM_LEFT", "다리": "LEG_LEFT", "몸체": "BACK"
+      };
 
-  const handleNext = () => {
-    /**
-     * ⚠️ [핵심 수정] 백엔드 Enum 매핑
-     * 백엔드 로그 확인 결과: [HEAD, CHEST, BACK, LEG_LEFT, ARM_RIGHT, ARM_LEFT, LEG_RIGHT, NECK, SHOULDER, STOMACH] 만 허용됨
-     */
-    const partMapping = {
-      "머리": "HEAD",
-      "가슴/배": "STOMACH",
-      "팔": "ARM_LEFT",
-      "다리": "LEG_LEFT",
-      "몸체": "BACK"        // "BODY" 대신 백엔드가 이해하는 "BACK"으로 전송
+      // AI에게 보내는 메시지에 "강제 규칙"을 끼워넣습니다.
+      // 백엔드가 split("이상입니다.")를 쓰기 때문에 이 문구가 반드시 포함되어야 합니다.
+      const forcedInstruction = " (주의: 모든 조언을 마친 후 반드시 '이상입니다.'라고 말하고 그 뒤에 위험도 점수 숫자만 적어주세요. 예: 조언내용... 이상입니다. 80)";
+
+      const reportRequest = {
+        userId: 1,
+        bodyPart: partMapping[currentPart] || "BACK",
+        intensity: String(state?.level || "3"),
+        // 증상 텍스트 뒤에 규칙을 강제로 붙여서 보냅니다.
+        symptomIcon: selectedSymptoms.join(", ") + forcedInstruction
+      };
+
+      navigate('/loading', { state: { reportRequest } });
     };
-
-    const reportRequest = {
-      userId: 1,
-      bodyPart: partMapping[currentPart] || "BACK",
-      intensity: String(state?.level || "3"),
-      symptomIcon: selectedSymptoms.join(", ")
-    };
-
-    console.log("전송 데이터 확인:", reportRequest);
-
-    navigate('/loading', {
-      state: {
-        reportRequest: reportRequest
-      }
-    });
-  };
 
   return (
     <Layout title="어떻게 아픈가요?" showBack={true}>
