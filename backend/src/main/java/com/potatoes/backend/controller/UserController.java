@@ -19,10 +19,10 @@ public class UserController {
      * 이제 서비스가 원하는 'UserRequest' 가방으로 데이터를 받습니다.
      */
     @PostMapping("/signup")
-    public ResponseEntity<User> signUp(@RequestBody UserRequest userRequest) {
-        // UserRequest 가방을 그대로 서비스에 던져줍니다.
-        User savedUser = userService.loginOrJoin(userRequest);
-        return ResponseEntity.ok(savedUser);
+    public ResponseEntity<Long> loginOrJoin(@RequestBody UserRequest request) {
+        User user = userService.loginOrJoin(request);
+
+        return ResponseEntity.ok(user.getId());
     }
 
     /**

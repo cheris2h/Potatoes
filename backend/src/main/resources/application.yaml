@@ -4,7 +4,7 @@ spring:
   profiles:
     include: api
 
-  # H2 데이터베이스 설정 (spring 하위로 이동)
+  # H2 데이터베이스 설정
   datasource:
     url: jdbc:h2:mem:potatoesdb
     driver-class-name: org.h2.Driver
@@ -16,8 +16,9 @@ spring:
       enabled: true
       path: /h2-console
 
-  # JPA 설정 (spring 하위로 이동)
+  # JPA 설정
   jpa:
+    defer-datasource-initialization: true
     hibernate:
       ddl-auto: update
     show-sql: true
@@ -25,7 +26,7 @@ spring:
       hibernate:
         format_sql: true
 
-# Google 설정은 spring과 별개이므로 맨 밖으로!
+# Google 설정
 google:
   genai:
-    model: "gemini-1.5-flash"
+    model: "models/gemini-flash-latest"
