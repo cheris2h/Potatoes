@@ -3,6 +3,8 @@ import { BrowserRouter, Routes, Route } from 'react-router-dom';
 import { ThemeProvider } from 'styled-components';
 import { theme } from './styles/theme';
 import { GlobalStyle } from './styles/GlobalStyle';
+import Loading from './pages/Loading';
+
 
 // 페이지 컴포넌트들 임포트
 import Step1Body from './pages/Step1Body';
@@ -23,6 +25,7 @@ function App() {
           <Route path="/step2" element={<Step2Level />} />
           <Route path="/step3" element={<Step3Detail />} />
           {/* <Route path="/loading" element={<Loading />} /> */}
+       <Route path="/loading" element={<Loading />} />
         </Routes>
       </BrowserRouter>
     </ThemeProvider>

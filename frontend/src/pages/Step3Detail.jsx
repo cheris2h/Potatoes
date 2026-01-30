@@ -108,15 +108,27 @@ const Step3Detail = () => {
     }
   };
 
-  const handleNext = () => {
-    // 모든 데이터를 합쳐서 Loading 페이지로 이동
-    navigate('/loading', {
-      state: {
-        ...state,
-        symptoms: selectedSymptoms
-      }
-    });
+const handleNext = async () => {
+  // 1. 백엔드 BodyPart Enum 명칭으로 변환 매핑
+  const partMapping = {
+    "머리": "HEAD",
+    "가슴/배": "STOMACH", // 백엔드에 CHEST/STOMACH 중 조율 필요
+    "팔": "ARM_LEFT",    // 일단 하나로 매핑
+    "다리": "LEG_LEFT",
+    "몸체": "BACK"
   };
+
+  // 2. 백엔드 ReportRequest 형식에 맞게 데이터 포장
+  const reportRequest = {
+    userId: 1, // 테스트용 (나중에 로그인/유저 생성 후 받은 ID 사용)
+    bodyPart: partMapping[state.part] || "HEAD",
+    intensity: String(state.level), // 백엔드가 String으로 받음
+    symptomIcon: selectedSymptoms[0] // 일단 첫 번째 증상을 아이콘명으로 활용
+  };
+
+  // 3. 로딩 페이지로 이동하면서 이 데이터를 넘겨줌
+  navigate('/loading', { state: { reportRequest, fullSymptoms: selectedSymptoms } });
+};
 
   return (
       <Layout title="어떻게 아픈가요?" showBack={true}>
