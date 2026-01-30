@@ -50,4 +50,8 @@ public class Report {
         this.aiDiagnosis = aiDiagnosis;
         this.createdAt = LocalDateTime.now(); // 생성 시점 자동 기록
     }
+    public void updateAiDiagnosis(String aiDiagnosis) {
+        this.aiDiagnosis = aiDiagnosis;
+    }
+
 }
