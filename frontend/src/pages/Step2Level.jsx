@@ -3,87 +3,158 @@ import { useNavigate, useLocation } from 'react-router-dom';
 import styled from 'styled-components';
 import Layout from '../components/common/Layout';
 import ProgressBar from '../components/common/ProgressBar';
+import { BottomButton } from '../components/common/Button';
+
+// 1. 가짜 데이터 (Mock Data) - 별도 파일로 뽑아도 됩니다.
+const MOCK_LEVELS = {
+  1: { label: "조금 아파요", color: "#3498db", emoji: "🙂" }, // 파랑
+  2: { label: "꽤 아파요", color: "#2ecc71", emoji: "😟" },   // 초록
+  3: { label: "많이 아파요", color: "#f1c40f", emoji: "😫" }, // 노랑
+  4: { label: "진짜 아파요", color: "#e67e22", emoji: "😭" }, // 주황
+  5: { label: "참기 힘들어요", color: "#e74c3c", emoji: "🌋" }, // 빨강
+};
 
 const Container = styled.div`
   flex: 1;
   padding: 20px;
-  background-color: #f8f9fa;
   display: flex;
   flex-direction: column;
+  /* 너무 길쭉해 보이지 않도록 중앙 정렬 요소 추가 */
+  justify-content: center;
+  max-height: 85vh; /* 헤더/프로그레스바 제외한 높이 제한 */
 `;
 
-const LevelCard = styled.button`
+const ContentWrapper = styled.div`
   width: 100%;
   display: flex;
+  flex-direction: column;
   align-items: center;
-  padding: 24px;
-  margin-bottom: 12px;
-  border-radius: 24px;
-  border: 3px solid ${props => props.isSelected ? '#4DB6AC' : 'white'};
-  background-color: white;
-  transition: all 0.2s ease;
-  box-shadow: 0 4px 12px rgba(0,0,0,0.03);
-
-  &:active { transform: scale(0.97); }
+  gap: 24px; /* 요소 간의 일정한 간격 */
 `;
 
-const EmojiBox = styled.div`
-  font-size: 40px;
-  margin-right: 20px;
+const MiniBodyCard = styled.div`
+  width: 200px; /* 크기를 고정하여 길쭉함을 방지 */
+  height: 200px;
+  background: white;
+  border-radius: 32px;
+  box-shadow: 0 10px 30px rgba(0,0,0,0.05);
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  position: relative;
+  border: 1px solid #f1f3f5;
 `;
 
-const LabelBox = styled.div`
-  text-align: left;
-  .title { font-size: 20px; font-weight: 700; color: #2d3436; }
-  .desc { font-size: 14px; color: #636e72; }
+const SliderContainer = styled.div`
+  width: 100%;
+  max-width: 320px; /* 슬라이더 너비 제한 */
+  text-align: center;
+`;
+
+const StyledSlider = styled.input`
+  width: 100%;
+  margin: 24px 0;
+  appearance: none;
+  height: 10px;
+  border-radius: 10px;
+  background: #edf2f7;
+  outline: none;
+
+  &::-webkit-slider-thumb {
+    appearance: none;
+    width: 32px;
+    height: 32px;
+    border-radius: 50%;
+    background: ${props => props.$color};
+    border: 5px solid white;
+    box-shadow: 0 4px 15px rgba(0,0,0,0.15);
+    cursor: pointer;
+    transition: all 0.2s ease-in-out;
+  }
+`;
+
+const LevelDisplay = styled.div`
+  .emoji { font-size: 56px; display: block; margin-bottom: 8px; }
+  .label { font-size: 24px; font-weight: 800; color: ${props => props.$color}; }
 `;
 
 const Step2Level = () => {
   const navigate = useNavigate();
   const { state } = useLocation();
-  const [selectedLevel, setSelectedLevel] = useState(null);
+  const [level, setLevel] = useState(3);
 
-  const levels = [
-    { id: 1, label: "조금 아파요", desc: "일상생활이 가능해요", emoji: "🙂" },
-    { id: 2, label: "꽤 아파요", desc: "신경이 계속 쓰여요", emoji: "😟" },
-    { id: 3, label: "많이 아파요", desc: "약을 먹어야 할 것 같아요", emoji: "😫" },
-    { id: 4, label: "진짜 아파요", desc: "움직이기 힘들 정도예요", emoji: "😭" },
-    { id: 5, label: "참기 힘들어요", desc: "당장 병원에 가야겠어요", emoji: "🌋" },
-  ];
+  const selectedPart = state?.part || "몸체";
+  const current = MOCK_LEVELS[level];
+
+  // 인체 모형 내 부위별 위치 (Step 1 좌표 대응)
+  const getHighlight = (part) => {
+    switch(part) {
+      case "머리": return { cx: 100, cy: 70, r: 50 };
+      case "가슴/배": return { cx: 100, cy: 165, r: 60 };
+      case "팔": return { cx: 150, cy: 150, r: 50 };
+      case "다리": return { cx: 100, cy: 300, r: 70 };
+      default: return { cx: 100, cy: 165, r: 80 };
+    }
+  };
+
+  const highlight = getHighlight(selectedPart);
 
   return (
-    <Layout title="상태 확인">
+    <Layout title="상태 확인" showBack={true}>
       <ProgressBar step={2} />
+
       <Container>
-        <h1 style={{ fontSize: '28px', fontWeight: '800', marginBottom: '8px' }}>얼마나 아파요?</h1>
-        <p style={{ color: '#636e72', marginBottom: '24px' }}>{state?.part} 부위의 통증 정도를 알려주세요.</p>
+        <ContentWrapper>
+          <div style={{ textAlign: 'center' }}>
+            <h2 style={{ fontSize: '24px', fontWeight: '800', color: '#2d3436' }}>얼마나 아픈가요?</h2>
+            <p style={{ color: '#636e72', fontSize: '15px' }}>슬라이더를 밀어 통증을 표현해주세요</p>
+          </div>
 
-        {levels.map((lvl) => (
-          <LevelCard
-            key={lvl.id}
-            isSelected={selectedLevel?.id === lvl.id}
-            onClick={() => setSelectedLevel(lvl)}
-          >
-            <EmojiBox>{lvl.emoji}</EmojiBox>
-            <LabelBox>
-              <div className="title">{lvl.label}</div>
-              <div className="desc">{lvl.desc}</div>
-            </LabelBox>
-          </LevelCard>
-        ))}
+          <MiniBodyCard>
+            {/* 배경 인체 모형 */}
+            <svg viewBox="0 0 200 400" style={{ width: '120px', height: '160px', opacity: 0.15 }}>
+              <circle cx="100" cy="60" r="35" fill="#2d3436" />
+              <rect x="60" y="105" width="80" height="120" rx="20" fill="#2d3436" />
+              <rect x="25" y="110" width="25" height="100" rx="12" fill="#2d3436" />
+              <rect x="150" y="110" width="25" height="100" rx="12" fill="#2d3436" />
+              <rect x="65" y="235" width="30" height="130" rx="15" fill="#2d3436" />
+              <rect x="105" y="235" width="30" height="130" rx="15" fill="#2d3436" />
+            </svg>
 
-        <button
-          disabled={!selectedLevel}
-          onClick={() => navigate('/step3', { state: { ...state, level: selectedLevel.label } })}
-          style={{
-            marginTop: 'auto', padding: '20px', borderRadius: '24px', border: 'none',
-            fontSize: '20px', fontWeight: '700', transition: 'all 0.2s',
-            backgroundColor: selectedLevel ? '#4DB6AC' : '#dfe6e9',
-            color: selectedLevel ? 'white' : '#b2bec3'
-          }}
-        >
-          다음으로 넘어가기
-        </button>
+            {/* 선택 부위 하이라이트 원 */}
+            <svg viewBox="0 0 200 400" style={{ position: 'absolute', width: '120px', height: '160px' }}>
+              <circle
+                cx={highlight.cx} cy={highlight.cy} r={highlight.r}
+                fill={current.color} fillOpacity="0.5"
+                stroke={current.color} strokeWidth="4"
+              />
+            </svg>
+          </MiniBodyCard>
+
+          <SliderContainer>
+            <LevelDisplay $color={current.color}>
+              <span className="emoji">{current.emoji}</span>
+              <div className="label">{current.label}</div>
+            </LevelDisplay>
+
+            <StyledSlider
+              type="range" min="1" max="5" step="1"
+              value={level} $color={current.color}
+              onChange={(e) => setLevel(parseInt(e.target.value))}
+            />
+            <div style={{ display: 'flex', justifyContent: 'space-between', color: '#adb5bd', fontSize: '13px', fontWeight: '600' }}>
+              <span>약함</span>
+              <span>강함</span>
+            </div>
+          </SliderContainer>
+        </ContentWrapper>
+
+        {/* 하단 고정 느낌을 주되 Container 안에서 적절히 배치 */}
+        <div style={{ marginTop: 'auto', width: '100%' }}>
+          <BottomButton onClick={() => navigate('/step3', { state: { ...state, level: level } })}>
+            선택 완료
+          </BottomButton>
+        </div>
       </Container>
     </Layout>
   );
