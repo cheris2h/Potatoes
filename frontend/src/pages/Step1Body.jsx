@@ -79,31 +79,43 @@ const Step1Body = () => {
           <p>아픈 부위를 콕 눌러주세요</p>
         </HeaderSection>
 
-        <BodyCard className="body-card-ref" onClick={(e) => handleBodyClick(e, "몸체")}>
-          <svg viewBox="0 0 200 400" style={{ width: '70%', height: '80%' }}>
-            {/* 머리 */}
-            <circle cx="100" cy="60" r="35" fill="#E0F2F1"
-              onClick={(e) => {e.stopPropagation(); handleBodyClick(e, "머리")}}
-              style={{ cursor: 'pointer' }}
-            />
-            {/* 상체 */}
-            <rect x="60" y="105" width="80" height="120" rx="20" fill="#E0F2F1"
-              onClick={(e) => {e.stopPropagation(); handleBodyClick(e, "가슴/배")}}
-              style={{ cursor: 'pointer' }}
-            />
-            {/* 왼팔 */}
-            <rect x="25" y="110" width="25" height="100" rx="12" fill="#E0F2F1"
-              onClick={(e) => {e.stopPropagation(); handleBodyClick(e, "팔")}}
-              style={{ cursor: 'pointer' }}
-            />
-            {/* 오른팔 */}
-            <rect x="150" y="110" width="25" height="100" rx="12" fill="#E0F2F1"
-              onClick={(e) => {e.stopPropagation(); handleBodyClick(e, "팔")}}
-              style={{ cursor: 'pointer' }}
-            />
-          </svg>
-          {selectedPart && <Marker style={{ left: markerPos.x, top: markerPos.y }} />}
-        </BodyCard>
+<BodyCard className="body-card-ref" onClick={(e) => handleBodyClick(e, "몸체")}>
+  <svg viewBox="0 0 200 400" style={{ width: '70%', height: '80%' }}>
+    {/* 머리 */}
+    <circle cx="100" cy="60" r="35" fill="#E0F2F1"
+      onClick={(e) => {e.stopPropagation(); handleBodyClick(e, "머리")}}
+      style={{ cursor: 'pointer' }}
+    />
+    {/* 상체 (가슴/배) */}
+    <rect x="60" y="105" width="80" height="120" rx="20" fill="#E0F2F1"
+      onClick={(e) => {e.stopPropagation(); handleBodyClick(e, "가슴/배")}}
+      style={{ cursor: 'pointer' }}
+    />
+    {/* 왼팔 */}
+    <rect x="25" y="110" width="25" height="100" rx="12" fill="#E0F2F1"
+      onClick={(e) => {e.stopPropagation(); handleBodyClick(e, "팔")}}
+      style={{ cursor: 'pointer' }}
+    />
+    {/* 오른팔 */}
+    <rect x="150" y="110" width="25" height="100" rx="12" fill="#E0F2F1"
+      onClick={(e) => {e.stopPropagation(); handleBodyClick(e, "팔")}}
+      style={{ cursor: 'pointer' }}
+    />
+
+    {/* --- 여기서부터 다리 추가 --- */}
+    {/* 왼다리 */}
+    <rect x="65" y="235" width="30" height="130" rx="15" fill="#E0F2F1"
+      onClick={(e) => {e.stopPropagation(); handleBodyClick(e, "다리")}}
+      style={{ cursor: 'pointer' }}
+    />
+    {/* 오른다리 */}
+    <rect x="105" y="235" width="30" height="130" rx="15" fill="#E0F2F1"
+      onClick={(e) => {e.stopPropagation(); handleBodyClick(e, "다리")}}
+      style={{ cursor: 'pointer' }}
+    />
+  </svg>
+  {selectedPart && <Marker style={{ left: markerPos.x, top: markerPos.y }} />}
+</BodyCard>
 
         <BottomButton
           disabled={!selectedPart}
