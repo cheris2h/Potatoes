@@ -41,7 +41,7 @@ public class GeminiResponse {
         private String text;
     }
 
-    public String getFirstText() {
+    public String getAnswer() {
         if (candidates != null && !candidates.isEmpty() &&
                 candidates.get(0).getContent() != null &&
                 !candidates.get(0).getContent().getParts().isEmpty()) {

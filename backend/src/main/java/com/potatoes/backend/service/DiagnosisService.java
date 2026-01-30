@@ -7,7 +7,6 @@ import com.potatoes.backend.dto.response.GeminiResponse;
 import com.potatoes.backend.repository.ReportRepository;
 import com.potatoes.backend.repository.UserRepository;
 import lombok.RequiredArgsConstructor;
-import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -16,7 +15,6 @@ import org.springframework.web.client.RestTemplate;
 import java.util.List;
 import java.util.Map;
 
-@Slf4j
 @Service
 @RequiredArgsConstructor
 @Transactional(readOnly = true)
@@ -31,10 +29,6 @@ public class DiagnosisService {
     @Value("${google.genai.model}")
     private String model;
 
-    /**
-     * [최초 생성 및 AI 분석]
-     * 유저 확인 -> AI 호출 -> 결과 포함하여 리포트 생성 -> 저장
-     */
     @Transactional
     public Long saveReport(ReportRequest reportRequest) {
         User user = userRepository.findById(reportRequest.getUserId())
@@ -53,9 +47,6 @@ public class DiagnosisService {
         return reportRepository.save(report).getId();
     }
 
-    /**
-     * Gemini API 호출 로직
-     */
     private String callAi(ReportRequest reportRequest) {
         String apiUrl = "https://generativelanguage.googleapis.com/v1beta/models/" + model + ":generateContent?key=" + apiKey;
         RestTemplate restTemplate = new RestTemplate();
@@ -78,16 +69,12 @@ public class DiagnosisService {
 
         try {
             GeminiResponse response = restTemplate.postForObject(apiUrl, requestBody, GeminiResponse.class);
-            return (response != null) ? response.getFirstText() : "진단 결과를 불러오지 못했습니다.";
+            return (response != null) ? response.getAnswer() : "진단 실패";
         } catch (Exception e) {
-            log.error("AI 호출 에러: {}", e.getMessage());
-            return "AI 분석이 일시적으로 지연되고 있습니다. 건강 상태를 유심히 지켜봐 주세요.";
+            return "예기치 못한 오류가 발생하였습니다. 다시 시도해주세요.";
         }
     }
 
-    /**
-     * 전체 리포트 조회
-     */
     public List<Report> getAllReports() {
         return reportRepository.findAll();
     }
