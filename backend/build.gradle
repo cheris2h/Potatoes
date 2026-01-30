@@ -33,7 +33,6 @@ dependencies {
 
 	// ai & api 연동
 	implementation 'com.google.genai:google-genai:1.0.0' // Gemini SDK
-	implementation 'org.springframework.cloud:spring-cloud-starter-openfeign' // 외부 API 호출
 
 	// 편의 기능
 	compileOnly 'org.projectlombok:lombok'
