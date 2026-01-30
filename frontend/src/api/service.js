@@ -1,20 +1,36 @@
 import axios from 'axios';
 
+// 1. 공통 설정
 const api = axios.create({
-    baseURL: process.env.REACT_APP_API_BASE_URL || 'http://localhost:8080',
-    headers: { 'Content-Type': 'application/json' }
+  baseURL: 'http://localhost:8080/api', // 백엔드 기본 주소
+  headers: {
+    'Content-Type': 'application/json',
+  },
 });
 
+// 2. 기능별 함수 정리
 export const potatoApi = {
-    // 유저 등록/로그인 (deviceId는 로컬스토리지 등에서 관리)
-    login: async (userData) => {
-        const response = await api.post('/api/login', userData);
-        return response.data; // 여기서 반환되는 user.id를 저장해둬야 함
-    },
-
-    // 리포트 전송 (AI 진단 포함)
-    sendReport: async (reportData) => {
-        const response = await api.post('/api/report', reportData);
-        return response.data; // 생성된 reportId 반환
+  // 회원가입/로그인 (UserController 연동)
+  signUpUser: async (userData) => {
+    try {
+      const response = await api.post('/users/signup', userData);
+      return response.data; // 성공 시 유저 ID 반환
+    } catch (error) {
+      console.error('회원가입 에러:', error);
+      throw error;
     }
+  },
+
+  // 리포트 저장 및 AI 진단 (DiagnosisController 연동)
+  sendReport: async (reportData) => {
+    try {
+      // 🔴 중요: 백엔드 컨트롤러 경로 /api/reports 와 일치해야 함
+      const response = await api.post('/reports', reportData);
+      console.log("서버 응답(객체):", response.data);
+      return response.data; // {id, bodyPartKorean, intensity, aiDiagnosis...}
+    } catch (error) {
+      console.error('리포트 전송 에러:', error);
+      throw error;
+    }
+  }
 };
