@@ -36,33 +36,74 @@ const Input = styled.input`
   border: 1px solid #dfe6e9;
   font-size: 16px;
 `;
+const GenderRow = styled.div`
+  display: flex;
+  gap: 20px;
+  margin-bottom: 20px;
+`;
+
+const GenderButton = styled.button`
+  width: 120px;
+  height: 120px;
+  border-radius: 20px;
+  border: none;
+  background: ${props =>
+    props.selected
+      ? 'linear-gradient(135deg, #4DB6AC, #26A69A)'
+      : '#F8F9FA'};
+  color: ${props => (props.selected ? 'white' : '#636E72')};
+  font-size: 54px;
+  cursor: pointer;
+  transition: all 0.25s ease;
+  box-shadow: ${props =>
+    props.selected
+      ? '0 10px 20px rgba(77,182,172,0.3)'
+      : '0 4px 8px rgba(0,0,0,0.08)'};
+
+  &:hover {
+    transform: translateY(-4px);
+    box-shadow: 0 12px 24px rgba(0,0,0,0.15);
+  }
+
+  &:active {
+    transform: scale(0.96);
+  }
+`;
+
 
 const SignUp2 = () => {
   const navigate = useNavigate();
 
   /* ✅ state 정의 추가 */
-  const [name, setName] = useState('');
-  const [birth, setBirth] = useState('');
+  const [emergencyContact, setEmergencyContact] = useState('');
+   const [gender, setGender] = useState('');
 
   return (
     <Layout title="회원가입" showBack={false}>
       <ThickDivider />
 
       <Container>
-        <IconWrapper role="img" aria-label="hospital">
-          🏥
-        </IconWrapper>
+        
 
-        <Input
-          placeholder="이름 입력"
-          value={name}
-          onChange={(e) => setName(e.target.value)}
-        />
+       <GenderRow>
+          <GenderButton
+            selected={gender === 'female'}
+            onClick={() => setGender('female')}
+          >
+            👩
+          </GenderButton>
 
+          <GenderButton
+            selected={gender === 'male'}
+            onClick={() => setGender('male')}
+          >
+            👨
+          </GenderButton>
+        </GenderRow>
         <Input
-          type="date"
-          value={birth}
-          onChange={(e) => setBirth(e.target.value)}
+          placeholder="보호자 연락처를 입력해주세요.(선택사항)"
+          value={emergencyContact}
+          onChange={(e) => setEmergencyContact(e.target.value)}
         />
 
         <BottomButton onClick={() => navigate('/step1')}>
