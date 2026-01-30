@@ -14,6 +14,7 @@ import Step2Level from './pages/Step2Level';
 import Step3Detail from './pages/Step3Detail';
 import Loading from './pages/Loading';
 import Result from './pages/Result';
+import DoctorReport from './pages/DoctorReport'; // 파일 경로 확인!
 
 function App() {
   return (
@@ -35,6 +36,7 @@ function App() {
           {/* 데이터 전송 및 결과 페이지 */}
           <Route path="/loading" element={<Loading />} />
           <Route path="/result" element={<Result />} />
+          <Route path="/report/:reportId" element={<DoctorReport />} />
         </Routes>
       </BrowserRouter>
     </ThemeProvider>

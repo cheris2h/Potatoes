@@ -40,4 +40,5 @@ export const createReport = async (reportData) => {
     }
 };
 
+
 console.log(`[API] ${IS_MOCKING ? "MOCK" : "REAL"} 모드 실행 중:`, BASE_URL);

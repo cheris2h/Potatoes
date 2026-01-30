@@ -5,19 +5,33 @@ import Layout from '../components/common/Layout';
 import ProgressBar from '../components/common/ProgressBar';
 import { BottomButton } from '../components/common/Button';
 
-// 1. 요청하신 변수명(Enum) 기준으로 증상 데이터 구성
+// 1. 증상 데이터 구성 (ARM_RIGHT 문구 수정)
 const SYMPTOM_OPTIONS = {
   "HEAD": ["띵하고 어지러워요", "콕콕 쑤셔요", "무겁고 답답해요", "지끈거려요", "속이 울렁거려요"],
   "CHEST": ["숨이 차요", "가슴이 답답해요", "콕콕 찔러요", "두근거려요"],
   "STOMACH": ["속이 쓰려요", "더부룩해요", "쥐어짜는 듯해요", "가스가 찬 것 같아요"],
   "BACK": ["담 걸린 것 같아요", "허리가 뻐근해요", "전신이 쑤셔요", "똑바로 눕기 힘들어요"],
   "ARM_LEFT": ["왼팔이 저려요", "힘이 안 들어가요", "뻐근해요", "부어올랐어요"],
-  "ARM_RIGHT": ["오른팔이 저려요", "힘이 안 들어가요", "뻐근해요", "부어올랐어요"],
+  "ARM_RIGHT": [
+    "찌릿찌릿 전기가 와요",
+    "욱신욱신 쑤셔요",
+    "퉁퉁 붓고 뜨거워요",
+    "힘이 없고 덜덜 떨려요"
+  ],
   "LEG_LEFT": ["왼다리가 아파요", "쥐가 나요", "당기는 느낌이에요", "무릎이 시려요"],
   "LEG_RIGHT": ["오른다리가 아파요", "쥐가 나요", "당기는 느낌이에요", "무릎이 시려요"],
   "SHOULDER_LEFT": ["왼쪽 어깨가 결려요", "팔을 들기 힘들어요", "뭉친 것 같아요"],
   "SHOULDER_RIGHT": ["오른쪽 어깨가 결려요", "팔을 들기 힘들어요", "뭉친 것 같아요"],
   "NECK": ["목이 뻣뻣해요", "돌릴 때 아파요", "침 삼킬 때 아파요"]
+};
+
+// 2. 증상별 아이콘 매핑 (매핑되지 않은 경우 기본값 사용)
+const SYMPTOM_ICONS = {
+  "찌릿찌릿 전기가 와요": "⚡",
+  "욱신욱신 쑤셔요": "💥",
+  "퉁퉁 붓고 뜨거워요": "🔥",
+  "힘이 없고 덜덜 떨려요": "🫨",
+  "default": "🤕"
 };
 
 // 화면 표시용 한글 변환
@@ -41,20 +55,40 @@ const PictogramButton = styled.button`
   background-color: ${props => props.$isSelected ? '#E0F2F1' : 'white'};
   border: 4px solid ${props => props.$isSelected ? '#00b894' : '#F1F3F5'};
   transition: all 0.2s; cursor: pointer;
-  .icon { font-size: 48px; margin-bottom: 12px; }
-  span { font-size: 18px; font-weight: 800; word-break: keep-all; color: ${props => props.$isSelected ? '#00796B' : '#2D3436'}; }
+
+  .icon {
+    font-size: 48px;
+    margin-bottom: 12px;
+    transition: transform 0.2s;
+  }
+
+  span {
+    font-size: 18px;
+    font-weight: 800;
+    word-break: keep-all;
+    color: ${props => props.$isSelected ? '#00796B' : '#2D3436'};
+  }
+
+  /* 선택 시 시각적 피드백 강화 */
+  &:active {
+    transform: scale(0.98);
+  }
+
+  ${props => props.$isSelected && `
+    .icon {
+      transform: scale(1.2);
+    }
+  `}
 `;
 
 const Step3Detail = () => {
   const navigate = useNavigate();
-  const { state } = useLocation(); // 이전 단계들(Step1, Step2)에서 넘어온 데이터
+  const { state } = useLocation();
   const [selectedSymptoms, setSelectedSymptoms] = useState([]);
 
-  // ✅ 고정값이 아닌 state에서 직접 데이터를 가져옴
-  // Step1Body에서 bodyPart를 넘겨주고, Step2에서 level(강도)을 넘겨준다고 가정합니다.
   const currentPartCode = state?.bodyPart || "HEAD";
   const currentIntensity = state?.intensity || "3";
-  const userId = localStorage.getItem('userId') || 1; // 저장된 유저 ID 사용
+  const userId = localStorage.getItem('userId') || 1;
 
   const options = SYMPTOM_OPTIONS[currentPartCode] || SYMPTOM_OPTIONS["HEAD"];
 
@@ -69,8 +103,8 @@ const Step3Detail = () => {
   const handleNext = () => {
     const reportRequest = {
       userId: Number(userId),
-      bodyPart: currentPartCode, // "SHOULDER_LEFT" 등의 Enum 값 전달
-      intensity: String(currentIntensity), // "3" 등 문자열로 전달
+      bodyPart: currentPartCode,
+      intensity: String(currentIntensity),
       symptomIcon: selectedSymptoms.join(", "),
       forcedInstruction: "이상입니다."
     };
@@ -88,22 +122,29 @@ const Step3Detail = () => {
       <Container>
         <div style={{ marginBottom: '24px' }}>
           <h2 style={{ fontSize: '28px', fontWeight: '900' }}>
-            {PART_KOREAN[currentPartCode]}가 <br/>어떻게 아파요?
+            {PART_KOREAN[currentPartCode]}(이)가 <br/>어떻게 아파요?
           </h2>
-          <p style={{ fontSize: '18px', color: '#636E72', marginTop: '8px' }}>증상을 골라주세요. (여러 개 가능)</p>
+          <p style={{ fontSize: '18px', color: '#636E72', marginTop: '8px' }}>
+            아래 그림 중에서 골라주세요.
+          </p>
         </div>
 
         <SymptomGrid>
-          {options.map((label, index) => (
-            <PictogramButton
-              key={index}
-              $isSelected={selectedSymptoms.includes(label)}
-              onClick={() => toggleSymptom(label)}
-            >
-              <div className="icon">🤕</div>
-              <span>{label}</span>
-            </PictogramButton>
-          ))}
+          {options.map((label, index) => {
+            // SYMPTOM_ICONS에서 해당 라벨의 아이콘을 찾고 없으면 default 사용
+            const icon = SYMPTOM_ICONS[label] || SYMPTOM_ICONS["default"];
+
+            return (
+              <PictogramButton
+                key={index}
+                $isSelected={selectedSymptoms.includes(label)}
+                onClick={() => toggleSymptom(label)}
+              >
+                <div className="icon">{icon}</div>
+                <span>{label}</span>
+              </PictogramButton>
+            );
+          })}
         </SymptomGrid>
 
         <BottomButton

@@ -83,10 +83,9 @@ const RecordCard = styled.button`
   }
 `;
 
-/* 🔽 Home.jsx ‘진료 시작’ 버튼과 같은 색 */
 const HomeButton = styled.button`
   width: 100%;
-  margin-top: 60px;   /* 🔼 버튼을 위로 띄우는 핵심 */
+  margin-top: 60px;
   padding: 16px;
   border-radius: 16px;
   border: none;
@@ -100,21 +99,27 @@ const HomeButton = styled.button`
     transform: scale(0.97);
   }
 `;
-
 const MyPage = () => {
   const navigate = useNavigate();
 
+  // 오늘 날짜 가져오기 (YYYY.MM.DD 형식)
+  const today = new Date().toLocaleDateString('ko-KR', {
+    year: 'numeric',
+    month: '2-digit',
+    day: '2-digit',
+  }).replace(/\s/g, '').slice(0, -1);
+
   const reportHistory = [
-    { id: 1, part: '머리', date: '2024.05.20', icon: '🧠' },
-    { id: 2, part: '가슴/배', date: '2024.05.21', icon: '🫁' },
-    { id: 3, part: '다리', date: '2024.05.22', icon: '🦵' },
-    { id: 4, part: '몸체', date: '2024.05.23', icon: '💪' },
+    { id: 1, part: '오른팔', date: today, icon: '💪' },
+    { id: 2, part: '머리', date: '2024.03.12', icon: '🧠' },
+    { id: 3, part: '가슴/배', date: '2023.12.05', icon: '🫁' },
+    { id: 4, part: '다리', date: '2023.11.28', icon: '🦵' },
   ];
 
   return (
     <Layout title="마이페이지" showBack={false}>
       <ThickDivider />
-      
+
       <ProfileSection>
         <UserName>감자 님</UserName>
         <p style={{ color: '#636E72', marginTop: '4px', fontSize: '14px' }}>
@@ -126,12 +131,16 @@ const MyPage = () => {
 
       <Container>
         <SectionTitle>최근 소견서 목록</SectionTitle>
-        
+
         <RecordGrid>
           {reportHistory.map((report) => (
-            <RecordCard 
-              key={report.id} 
-              onClick={() => navigate(`/report/${report.id}`)}
+            <RecordCard
+              key={report.id}
+              onClick={() => {
+                // 오른팔(id: 1)이든 뭐든 클릭하면 리포트 상세 페이지(DoctorReport)로 이동
+                // App.js에 등록된 경로가 '/report/:reportId'라고 가정합니다.
+                navigate(`/report/${report.id}`);
+              }}
             >
               <div className="icon">{report.icon}</div>
               <div className="title">{report.part} 소견서</div>
@@ -140,7 +149,6 @@ const MyPage = () => {
           ))}
         </RecordGrid>
 
-        {/* 🔽 리스트 아래쪽, 너무 밑 아님 */}
         <HomeButton onClick={() => navigate('/')}>
           홈으로 돌아가기
         </HomeButton>

@@ -3,8 +3,12 @@ import { useNavigate } from 'react-router-dom';
 import styled, { keyframes } from 'styled-components';
 import Layout from '../components/common/Layout';
 import { BottomButton } from '../components/common/Button';
-import DatePicker from 'react-datepicker';
+import DatePicker, { registerLocale } from 'react-datepicker'; // registerLocale 추가
+import ko from 'date-fns/locale/ko'; // 한국어 데이터 가져오기
 import 'react-datepicker/dist/react-datepicker.css';
+
+// 달력을 한국어로 설정
+registerLocale('ko', ko);
 
 const fadeUp = keyframes`
   from { opacity: 0; transform: translateY(24px); }
@@ -55,16 +59,17 @@ const SignUp = () => {
   const [name, setName] = useState('');
   const [birth, setBirth] = useState(null);
 
+  // 2003년 1월 1일 기본 위치값
+  const defaultDate = new Date(2003, 0, 1);
+
   const handleNext = () => {
     if (!name || !birth) {
       alert("이름과 생년월일을 입력해주세요.");
       return;
     }
 
-    // 날짜를 YYYY-MM-DD 형식의 문자열로 변환
     const formattedBirth = birth.toISOString().split('T')[0];
 
-    // SignUp2로 데이터 전달
     navigate('/SignUp2', {
       state: { name, birth: formattedBirth }
     });
@@ -87,12 +92,17 @@ const SignUp = () => {
 
           <DatePickerWrapper>
             <DatePicker
+              locale="ko" // 이 부분이 핵심입니다! 한국어로 변경
               selected={birth}
               onChange={(date) => setBirth(date)}
               placeholderText="생년월일 선택"
-              dateFormat="yyyy-MM-dd"
+              dateFormat="yyyy년 MM월 dd일" // 보여지는 형식도 한국식으로 수정
               showPopperArrow={false}
               maxDate={new Date()}
+              openToDate={defaultDate}
+              showYearDropdown
+              scrollableYearDropdown
+              yearDropdownItemNumber={100}
             />
           </DatePickerWrapper>
 
