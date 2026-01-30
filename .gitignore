@@ -1,0 +1,56 @@
+# --- Backend (Spring Boot) ---
+backend/.gradle
+backend/build/
+backend/out/
+backend/bin/
+backend/HELP.md
+backend/!gradle/wrapper/gradle-wrapper.jar
+backend/!**/src/main/**/build/
+backend/!**/src/test/**/build/
+backend/!**/src/main/**/bin/
+backend/!**/src/test/**/bin/
+backend/!**/src/main/**/out/
+backend/!**/src/test/**/out/
+
+# --- Frontend (React / Vite) ---
+frontend/node_modules
+frontend/dist
+frontend/dist-ssr
+frontend/*.local
+frontend/npm-debug.log*
+frontend/yarn-debug.log*
+frontend/yarn-error.log*
+frontend/pnpm-debug.log*
+frontend/lerna-debug.log*
+
+# --- IDEs & Editors ---
+.idea/
+*.iws
+*.iml
+*.ipr
+.vscode/
+!.vscode/extensions.json
+.DS_Store
+*.suo
+*.ntvs*
+*.njsproj
+*.sln
+*.sw?
+
+# --- Logs ---
+logs
+*.log
+
+# --- Specific Build Tools ---
+/nbproject/private/
+/nbbuild/
+/dist/
+/nbdist/
+/.nb-gradle/
+.apt_generated
+.classpath
+.factorypath
+.project
+.settings
+.springBeans
+.sts4-cache
