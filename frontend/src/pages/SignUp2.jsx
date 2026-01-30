@@ -36,6 +36,30 @@ const Input = styled.input`
   border: 1px solid #dfe6e9;
   font-size: 16px;
 `;
+
+const BrandSection = styled.div`
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  margin-bottom: 70px;
+`;
+
+const Brand = styled.div`
+  font-size: 42px;
+  font-weight: 900;
+  color: #2ed8b6;
+  letter-spacing: -0.5px;
+
+  
+`;
+const Subtitle = styled.p`
+  margin-top: 14px;
+  font-size: 17px;
+  color: #636e72;
+  text-align: center;
+  line-height: 1.6;
+
+`;
 const GenderRow = styled.div`
   display: flex;
   gap: 20px;
@@ -81,9 +105,16 @@ const SignUp2 = () => {
   return (
     <Layout title="회원가입" showBack={false}>
       <ThickDivider />
-
+        
       <Container>
         
+ <BrandSection>
+          <Brand>아프닥</Brand>
+          <Subtitle>
+            누구나 쉽게, 차별 없이<br />
+            건강을 확인하세요.
+          </Subtitle>
+        </BrandSection>
 
        <GenderRow>
           <GenderButton
