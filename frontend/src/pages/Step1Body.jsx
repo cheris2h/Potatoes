@@ -55,10 +55,14 @@ const Step1Body = () => {
   const [selected, setSelected] = useState({ label: '', code: '' });
   const [markerPos, setMarkerPos] = useState({ x: 0, y: 0 });
 
+  // 클릭 이벤트 핸들러 통합
   const handlePartClick = (e, label, code) => {
     e.stopPropagation();
     const rect = e.currentTarget.closest('.body-card-ref').getBoundingClientRect();
+
+    // 마커 위치 업데이트
     setMarkerPos({ x: e.clientX - rect.left, y: e.clientY - rect.top });
+    // 선택된 부위 정보 저장 (Step3Detail과 호환되는 코드 사용)
     setSelected({ label, code });
   };
 
@@ -82,47 +86,66 @@ const Step1Body = () => {
         <BodyCard className="body-card-ref">
           <svg viewBox="0 0 200 400" style={{ width: '85%', height: '90%' }}>
             {/* 머리 */}
-            <circle cx="100" cy="45" r="30" fill={selected.code === 'HEAD' ? activeColor : normalColor}
+            <circle cx="100" cy="45" r="30"
+              fill={selected.code === 'HEAD' ? activeColor : normalColor}
               onClick={(e) => handlePartClick(e, "머리", "HEAD")} style={{cursor:'pointer'}} />
 
             {view === 'front' && (
               <g style={{ pointerEvents: 'none' }}>
                 <circle cx="90" cy="40" r="2.5" fill="#636E72" />
                 <circle cx="110" cy="40" r="2.5" fill="#636E72" />
-                {/* 웃는 입: 곡률을 더 크게 조정 */}
                 <path d="M 88 55 Q 100 68 112 55" stroke="#636E72" strokeWidth="2.5" fill="none" strokeLinecap="round" />
               </g>
             )}
 
             {/* 목 */}
-            <rect x="90" y="78" width="20" height="12" rx="4" fill={selected.code === 'NECK' ? activeColor : normalColor}
+            <rect x="90" y="78" width="20" height="12" rx="4"
+              fill={selected.code === 'NECK' ? activeColor : normalColor}
               onClick={(e) => handlePartClick(e, "목", "NECK")} style={{cursor:'pointer'}} />
 
             {view === 'front' ? (
               <g>
                 {/* 왼쪽 어깨 */}
-                <rect x="50" y="95" width="42" height="22" rx="11" fill={selected.code === 'SHOULDER_LEFT' ? activeColor : normalColor}
+                <rect x="50" y="95" width="42" height="22" rx="11"
+                  fill={selected.code === 'SHOULDER_LEFT' ? activeColor : normalColor}
                   onClick={(e) => handlePartClick(e, "왼쪽 어깨", "SHOULDER_LEFT")} style={{cursor:'pointer'}} />
-                {/* 오른쪽 어깨 (간격 8px 확보) */}
-                <rect x="108" y="95" width="42" height="22" rx="11" fill={selected.code === 'SHOULDER_RIGHT' ? activeColor : normalColor}
+                {/* 오른쪽 어깨 */}
+                <rect x="108" y="95" width="42" height="22" rx="11"
+                  fill={selected.code === 'SHOULDER_RIGHT' ? activeColor : normalColor}
                   onClick={(e) => handlePartClick(e, "오른쪽 어깨", "SHOULDER_RIGHT")} style={{cursor:'pointer'}} />
 
-                <rect x="65" y="122" width="70" height="42" rx="12" fill={selected.code === 'CHEST' ? activeColor : normalColor} onClick={(e) => handlePartClick(e, "가슴", "CHEST")} style={{cursor:'pointer'}} />
-                <rect x="65" y="168" width="70" height="50" rx="12" fill={selected.code === 'STOMACH' ? activeColor : normalColor} onClick={(e) => handlePartClick(e, "배", "STOMACH")} style={{cursor:'pointer'}} />
+                {/* 가슴/배 */}
+                <rect x="65" y="122" width="70" height="42" rx="12"
+                  fill={selected.code === 'CHEST' ? activeColor : normalColor}
+                  onClick={(e) => handlePartClick(e, "가슴", "CHEST")} style={{cursor:'pointer'}} />
+                <rect x="65" y="168" width="70" height="50" rx="12"
+                  fill={selected.code === 'STOMACH' ? activeColor : normalColor}
+                  onClick={(e) => handlePartClick(e, "배", "STOMACH")} style={{cursor:'pointer'}} />
               </g>
             ) : (
               <g>
-                <rect x="60" y="95" width="80" height="120" rx="15" fill={selected.code === 'BACK' ? activeColor : normalColor} onClick={(e) => handlePartClick(e, "등", "BACK")} style={{cursor:'pointer'}} />
+                {/* 등 */}
+                <rect x="60" y="95" width="80" height="120" rx="15"
+                  fill={selected.code === 'BACK' ? activeColor : normalColor}
+                  onClick={(e) => handlePartClick(e, "등", "BACK")} style={{cursor:'pointer'}} />
               </g>
             )}
 
-            {/* 팔 (어깨와 겹치지 않게 y좌표를 조금 내림) */}
-            <rect x="18" y="120" width="26" height="110" rx="13" fill={selected.code === 'ARM_LEFT' ? activeColor : normalColor} onClick={(e) => handlePartClick(e, "왼팔", "ARM_LEFT")} style={{cursor:'pointer'}} />
-            <rect x="156" y="120" width="26" height="110" rx="13" fill={selected.code === 'ARM_RIGHT' ? activeColor : normalColor} onClick={(e) => handlePartClick(e, "오른팔", "ARM_RIGHT")} style={{cursor:'pointer'}} />
+            {/* 팔 */}
+            <rect x="18" y="120" width="26" height="110" rx="13"
+              fill={selected.code === 'ARM_LEFT' ? activeColor : normalColor}
+              onClick={(e) => handlePartClick(e, "왼팔", "ARM_LEFT")} style={{cursor:'pointer'}} />
+            <rect x="156" y="120" width="26" height="110" rx="13"
+              fill={selected.code === 'ARM_RIGHT' ? activeColor : normalColor}
+              onClick={(e) => handlePartClick(e, "오른팔", "ARM_RIGHT")} style={{cursor:'pointer'}} />
 
             {/* 다리 */}
-            <rect x="65" y="235" width="32" height="140" rx="16" fill={selected.code === 'LEG_LEFT' ? activeColor : normalColor} onClick={(e) => handlePartClick(e, "왼다리", "LEG_LEFT")} style={{cursor:'pointer'}} />
-            <rect x="103" y="235" width="32" height="140" rx="16" fill={selected.code === 'LEG_RIGHT' ? activeColor : normalColor} onClick={(e) => handlePartClick(e, "오른다리", "LEG_RIGHT")} style={{cursor:'pointer'}} />
+            <rect x="65" y="235" width="32" height="140" rx="16"
+              fill={selected.code === 'LEG_LEFT' ? activeColor : normalColor}
+              onClick={(e) => handlePartClick(e, "왼다리", "LEG_LEFT")} style={{cursor:'pointer'}} />
+            <rect x="103" y="235" width="32" height="140" rx="16"
+              fill={selected.code === 'LEG_RIGHT' ? activeColor : normalColor}
+              onClick={(e) => handlePartClick(e, "오른다리", "LEG_RIGHT")} style={{cursor:'pointer'}} />
           </svg>
 
           {selected.code && <Marker style={{ left: markerPos.x, top: markerPos.y }} />}

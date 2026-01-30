@@ -19,12 +19,11 @@ const Input = styled.input`
   border-radius: 12px; border: 1px solid #dfe6e9; font-size: 16px;
 `;
 
-<<<<<<< HEAD
 const BrandSection = styled.div`
   display: flex;
   flex-direction: column;
   align-items: center;
-  margin-bottom: 70px;
+  margin-bottom: 50px; /* 간격 살짝 조정 */
 `;
 
 const Brand = styled.div`
@@ -32,19 +31,16 @@ const Brand = styled.div`
   font-weight: 900;
   color: #2ed8b6;
   letter-spacing: -0.5px;
-
-  
 `;
+
 const Subtitle = styled.p`
   margin-top: 14px;
   font-size: 17px;
   color: #636e72;
   text-align: center;
   line-height: 1.6;
-
 `;
-=======
->>>>>>> main
+
 const GenderRow = styled.div`
   display: flex; gap: 20px; margin-bottom: 20px;
 `;
@@ -75,9 +71,8 @@ const SignUp2 = () => {
       return;
     }
 
-    // 명세서 규격에 맞춘 데이터 가공
     const requestBody = {
-      deviceId: "1234", // 실제 서비스 시 고유 기기값 추출 로직 필요
+      deviceId: "1234",
       name: prevData.name,
       birth: prevData.birth,
       gender: gender === 'male' ? "남자" : "여자",
@@ -85,15 +80,16 @@ const SignUp2 = () => {
     };
 
     try {
+      // API 주소는 환경에 맞게 수정 필요 (예: http://192.168.0.XX:8080/api/users/signup)
       const response = await axios.post('http://localhost:8080/api/users/signup', requestBody);
 
       if (response.status === 200) {
-        // 회원가입 후 생성된 id를 저장할 수도 있습니다.
-        const userId = response.data;
-        localStorage.setItem('userId', userId);
-
-        alert("회원가입이 완료되었습니다!");
-        navigate('/step1');
+        const userId = response.data.id;
+        if (userId) {
+          localStorage.setItem('userId', userId);
+          alert("회원가입이 완료되었습니다!");
+          navigate('/step1');
+        }
       }
     } catch (error) {
       console.error("회원가입 에러:", error);
@@ -104,11 +100,9 @@ const SignUp2 = () => {
   return (
     <Layout title="회원가입" showBack={true}>
       <ThickDivider />
-<<<<<<< HEAD
-        
       <Container>
-        
- <BrandSection>
+        {/* 브랜드 섹션 (로고) */}
+        <BrandSection>
           <Brand>아프닥</Brand>
           <Subtitle>
             누구나 쉽게, 차별 없이<br />
@@ -116,11 +110,8 @@ const SignUp2 = () => {
           </Subtitle>
         </BrandSection>
 
-       <GenderRow>
-=======
-      <Container>
+        {/* 성별 선택 섹션 */}
         <GenderRow>
->>>>>>> main
           <GenderButton
             selected={gender === 'female'}
             onClick={() => setGender('female')}
@@ -132,7 +123,7 @@ const SignUp2 = () => {
         </GenderRow>
 
         <Input
-          placeholder="보호자 연락처를 입력해주세요.(선택사항)"
+          placeholder="보호자 연락처 (선택사항)"
           value={emergencyContact}
           onChange={(e) => setEmergencyContact(e.target.value)}
         />
