@@ -1,11 +1,10 @@
 import axios from 'axios';
 
 // 💡 true면 가짜 데이터(Mock), false면 실제 백엔드 연동
-const IS_MOCKING = true;
+const IS_MOCKING = false;
 
 // 실제 백엔드 서버 주소 (팀원 IP 확인 후 수정)
-const BASE_URL = 'http://192.168.0.XX:8080/api';
-
+const BASE_URL = 'http://localhost:8080/api';
 export const createReport = async (reportData) => {
   if (IS_MOCKING) {
     /**

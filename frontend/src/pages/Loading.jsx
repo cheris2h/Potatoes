@@ -59,21 +59,36 @@ const Loading = () => {
   const { state } = useLocation();
 
   useEffect(() => {
-    const processDiagnosis = async () => {
-      try {
-        const responseData = await createReport(state?.reportRequest);
-        navigate('/result', { state: { result: responseData } });
-      } catch (error) {
-        console.error("분석 오류:", error);
-        alert("분석 중 오류가 발생했습니다.");
+      const processDiagnosis = async () => {
+        try {
+          console.log("1. 서버로 보내는 데이터:", state?.reportRequest);
+
+          const responseData = await createReport(state?.reportRequest);
+
+          console.log("2. 서버에서 받은 응답:", responseData); // 👈 여기서 데이터가 찍히나 보세요!
+
+          if (!responseData) {
+            throw new Error("서버 응답 데이터가 비어있습니다.");
+          }
+
+          // 서버 응답에 따라 형식이 다를 수 있으니 확인 후 전송
+          // 보통 responseData 자체가 리포트 객체일 겁니다.
+          navigate('/result', { state: { result: responseData } });
+
+        } catch (error) {
+          console.error("분석 오류 상세:", error);
+          alert("분석 중 오류가 발생했습니다. 콘솔을 확인해주세요.");
+          navigate('/step3');
+        }
+      };
+
+      if (state?.reportRequest) {
+        processDiagnosis();
+      } else {
+        console.error("전송할 reportRequest가 없습니다!");
         navigate('/step3');
       }
-    };
-
-    if (state?.reportRequest) {
-      processDiagnosis();
-    }
-  }, [state, navigate]);
+    }, [state, navigate]);
 
   return (
     <Layout showBack={false}>

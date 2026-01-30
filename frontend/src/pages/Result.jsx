@@ -1,12 +1,11 @@
-import React, { useEffect, useState } from 'react';
+import React from 'react';
 import { useLocation, useNavigate } from 'react-router-dom';
 import styled from 'styled-components';
 import { QRCodeCanvas } from 'qrcode.react';
 import Layout from '../components/common/Layout';
 import { BottomButton } from '../components/common/Button';
-import { getReportDetail } from '../api/reportService';
 
-// --- Styled Components ---
+// --- Styled Components (기존 디자인 유지) ---
 const Container = styled.div`
   flex: 1;
   padding: 20px;
@@ -17,7 +16,6 @@ const Container = styled.div`
   padding-bottom: 60px;
 `;
 
-/* 🚦 사용자용: 건강 신호등 섹션 */
 const TrafficLightContainer = styled.div`
   width: 100%;
   max-width: 480px;
@@ -28,7 +26,6 @@ const TrafficLightContainer = styled.div`
   text-align: center;
   border: 5px solid ${props => props.$color};
   box-shadow: 0 10px 20px rgba(0,0,0,0.05);
-  transition: all 0.5s ease;
 `;
 
 const StatusIcon = styled.div` font-size: 64px; margin-bottom: 12px; `;
@@ -36,7 +33,6 @@ const StatusText = styled.h2`
   font-size: 26px; font-weight: 900; color: ${props => props.$color}; margin-bottom: 8px;
 `;
 
-/* 📄 의료진용: 리포트 카드 */
 const ReportCard = styled.div`
   width: 100%;
   max-width: 480px;
@@ -56,7 +52,6 @@ const QRWrapper = styled.div`
   align-items: center;
   margin-bottom: 24px;
   border: 2px dashed #cbd5e0;
-
   p { font-size: 14px; font-weight: 800; color: #4A5568; margin-top: 12px; }
 `;
 
@@ -73,37 +68,38 @@ const InfoItem = styled.div`
 const Result = () => {
   const navigate = useNavigate();
   const { state } = useLocation();
-  const [result, setResult] = useState(null);
-  const [loading, setLoading] = useState(true);
 
-  // 1. 상태 판별 로직 (신호등 색상 설정)
+  // 1. Loading 페이지에서 넘어온 실제 데이터 추출
+  const result = state?.result;
+
+  // 데이터가 없을 경우 처리
+  if (!result) {
+    return (
+      <Layout title="오류" showBack={true}>
+        <Container>데이터를 찾을 수 없습니다. 다시 시도해주세요.</Container>
+      </Layout>
+    );
+  }
+
+  // 2. 상태 판별 로직 (신호등 색상 설정)
   const getStatus = (intensity) => {
     const val = parseInt(intensity) || 3;
-    if (val <= 1) return { color: '#4ADE80', icon: '😊', msg: '천천히 쉬면 괜찮아질 거예요', doctor: '경증' };
-    if (val <= 3) return { color: '#FACC15', icon: '😟', msg: '의사 선생님께 꼭 보여주세요', doctor: '관찰 요망' };
-    return { color: '#F87171', icon: '🚑', msg: '지금 바로 도움이 필요해요!', doctor: '긴급 진료 권장' };
+    if (val <= 1) return { color: '#4ADE80', icon: '😊', msg: '천천히 쉬면 괜찮아질 거예요' };
+    if (val <= 3) return { color: '#FACC15', icon: '😟', msg: '의사 선생님께 꼭 보여주세요' };
+    return { color: '#F87171', icon: '🚑', msg: '지금 바로 도움이 필요해요!' };
   };
 
-  useEffect(() => {
-    const loadData = async () => {
-      try {
-        const id = state?.reportId || 101; // 테스트용 ID
-        const data = await getReportDetail(id);
-        setResult(data);
-      } catch (err) {
-        console.error("데이터 로드 실패");
-      } finally {
-        setLoading(false);
-      }
-    };
-    loadData();
-  }, [state]);
+  const status = getStatus(result.intensity);
 
-  if (loading) return <Container>AI 분석 중...</Container>;
+  // 3. 백엔드 영문 부위명을 한글로 변환
+  const partNameMap = {
+    HEAD: "머리", CHEST: "가슴", STOMACH: "배",
+    BACK: "등", ARM_LEFT: "왼팔", ARM_RIGHT: "오른팔",
+    LEG_LEFT: "왼다리", LEG_RIGHT: "오른다리", NECK: "목", SHOULDER: "어깨"
+  };
 
-  const status = getStatus(result?.intensity);
-  // 의사용 웹페이지 주소 (본인 IP로 수정 필요)
-  const doctorLink = `http://192.168.0.XX:3000/doctor-view/${result?.id}`;
+  // QR 코드 링크 (로컬 테스트용)
+  const doctorLink = `http://localhost:3000/doctor-view/${result.id}`;
 
   return (
     <Layout title="나의 건강 신호등" showBack={false}>
@@ -117,7 +113,7 @@ const Result = () => {
           </p>
         </TrafficLightContainer>
 
-        {/* 📄 의사용 QR 리포트 */}
+        {/* 📄 의료진용 리포트 카드 */}
         <ReportCard>
           <div style={{ textAlign: 'center', marginBottom: '20px' }}>
             <span style={{ fontSize: '14px', color: '#4DB6AC', fontWeight: '900' }}>MEDICAL QR REPORT</span>
@@ -132,19 +128,21 @@ const Result = () => {
           <InfoGrid>
             <InfoItem>
               <div className="label">아픈 곳</div>
-              <div className="value">{result?.bodyPartKorean}</div>
+              <div className="value">{partNameMap[result.bodyPart] || result.bodyPart}</div>
             </InfoItem>
             <InfoItem>
               <div className="label">아픈 정도</div>
-              <div className="value">{result?.intensity}</div>
+              <div className="value">{result.intensity}단계</div>
             </InfoItem>
           </InfoGrid>
 
-          <div style={{ background: '#f1f5f9', padding: '15px', borderRadius: '15px', fontSize: '14px', color: '#475569' }}>
-             <b>💡 환자 소통 팁:</b> {result?.communicationTip || "질문 후 대답까지 5초 이상 기다려주세요."}
+          <div style={{ background: '#f1f5f9', padding: '15px', borderRadius: '15px', fontSize: '14px', color: '#475569', lineHeight: '1.6' }}>
+             <b style={{color: '#4DB6AC'}}>🤖 AI 분석 소견:</b><br/>
+             {result.aiDiagnosis || "분석 내용이 생성되지 않았습니다."}
           </div>
         </ReportCard>
 
+        {/* 하단 버튼 세션 */}
         <div style={{ marginTop: '30px', width: '100%', display: 'flex', gap: '12px', maxWidth: '480px' }}>
           <BottomButton
             style={{ flex: 1, backgroundColor: '#CBD5E0', color: '#4A5568' }}

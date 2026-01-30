@@ -69,31 +69,19 @@ const Step3Detail = () => {
       setSelectedSymptoms([...selectedSymptoms, symptom]);
     }
   };
-
-  const handleNext = () => {
-    // 1. 백엔드 BodyPart Enum 명칭으로 변환 (백엔드 도메인과 일치)
-    const partMapping = {
-      "머리": "HEAD",
-      "가슴/배": "CHEST",
-      "팔": "ARM",
-      "다리": "LEG",
-      "몸체": "BODY"
-    };
-
-    // 2. 백엔드 ReportRequest 형식에 맞게 데이터 포장
+// Step3Detail.jsx 의 handleNext 부분
+const handleNext = () => {
+    // 백엔드 DTO(ReportRequest) 필드명과 100% 일치시킵니다.
     const reportRequest = {
-      // 로그인 시 저장된 ID를 사용하거나 없으면 테스트용 1번 사용
-      userId: Number(localStorage.getItem('userId')) || 1,
-      bodyPart: partMapping[currentPart] || "BODY",
-      intensity: `${state?.level || 3}단계`,
-      symptomIcon: selectedSymptoms.join(", ") // 선택한 모든 증상을 텍스트로 합쳐서 전달
+      userId: 2,           // Long userId 에 매핑됨
+      bodyPart: state?.bodyPart || "BODY", // Enum BodyPart 에 매핑됨
+      intensity: String(state?.intensity || "3"), // String intensity 에 매핑됨
+      symptomIcon: selectedSymptoms.join(", ")  // String symptomIcon 에 매핑됨
     };
 
-    // 3. 로딩 페이지로 이동하면서 백엔드에 보낼 '데이터'를 통째로 넘겨줌
     navigate('/loading', {
       state: {
-        reportRequest: reportRequest,
-        originalData: state // 이전 단계 데이터 백업
+        reportRequest: reportRequest
       }
     });
   };
