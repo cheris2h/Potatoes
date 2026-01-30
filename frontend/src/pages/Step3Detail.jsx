@@ -5,7 +5,7 @@ import Layout from '../components/common/Layout';
 import ProgressBar from '../components/common/ProgressBar';
 import { BottomButton } from '../components/common/Button';
 
-// 부위별 증상 가짜 데이터
+// 부위별 증상 가짜 데이터 (백엔드 전송 및 화면 표시용)
 const SYMPTOM_OPTIONS = {
   "머리": ["띵하고 어지러워요", "콕콕 쑤셔요", "무겁고 답답해요", "지끈거려요", "속이 울렁거려요"],
   "가슴/배": ["속이 쓰려요", "콕콕 찔러요", "더부룩해요", "쥐어짜는 듯해요", "가스가 찬 것 같아요"],
@@ -21,48 +21,9 @@ const Container = styled.div`
   flex-direction: column;
 `;
 
-const QuestionText = styled.h2`
-  font-size: 24px;
-  font-weight: 800;
-  color: #2D3436;
-  line-height: 1.4;
-  margin-bottom: 8px;
-`;
-
-const SubText = styled.p`
-  color: #636E72;
-  font-size: 16px;
-  margin-bottom: 32px;
-`;
-
-const ChipContainer = styled.div`
-  display: flex;
-  flex-wrap: wrap;
-  gap: 12px;
-  margin-bottom: 40px;
-`;
-
-const SymptomChip = styled.button`
-  padding: 14px 22px;
-  border-radius: 50px;
-  font-size: 16px;
-  font-weight: 600;
-  transition: all 0.2s ease;
-  cursor: pointer;
-  word-break: keep-all;
-
-  /* 선택 여부에 따른 스타일 분기 */
-  background-color: ${props => props.$isSelected ? '#4DB6AC' : 'white'};
-  color: ${props => props.$isSelected ? 'white' : '#495057'};
-  border: 2px solid ${props => props.$isSelected ? '#4DB6AC' : '#EDF2F7'};
-  box-shadow: ${props => props.$isSelected ? '0 8px 16px rgba(77,182,172,0.15)' : 'none'};
-
-  &:active { transform: scale(0.96); }
-`;
-
 const SymptomGrid = styled.div`
   display: grid;
-  grid-template-columns: 1fr 1fr; /* 2열로 크게 배치 */
+  grid-template-columns: 1fr 1fr;
   gap: 16px;
   margin-bottom: 40px;
 `;
@@ -77,10 +38,11 @@ const PictogramButton = styled.button`
   background-color: ${props => props.$isSelected ? '#E0F2F1' : 'white'};
   border: 4px solid ${props => props.$isSelected ? '#4DB6AC' : '#F1F3F5'};
   transition: all 0.2s;
+  cursor: pointer;
 
-  img {
-    width: 80px;  /* 픽토그램을 크게 보여줌 */
-    height: 80px;
+  /* 픽토그램 이미지 대신 임시로 이모지나 아이콘을 크게 쓸 수도 있습니다 */
+  .icon {
+    font-size: 48px;
     margin-bottom: 12px;
   }
 
@@ -94,7 +56,7 @@ const PictogramButton = styled.button`
 
 const Step3Detail = () => {
   const navigate = useNavigate();
-  const { state } = useLocation();
+  const { state } = useLocation(); // step1(part), step2(level) 데이터
   const [selectedSymptoms, setSelectedSymptoms] = useState([]);
 
   const currentPart = state?.part || "몸체";
@@ -108,59 +70,66 @@ const Step3Detail = () => {
     }
   };
 
-const handleNext = async () => {
-  // 1. 백엔드 BodyPart Enum 명칭으로 변환 매핑
-  const partMapping = {
-    "머리": "HEAD",
-    "가슴/배": "STOMACH", // 백엔드에 CHEST/STOMACH 중 조율 필요
-    "팔": "ARM_LEFT",    // 일단 하나로 매핑
-    "다리": "LEG_LEFT",
-    "몸체": "BACK"
-  };
+  const handleNext = () => {
+    // 1. 백엔드 BodyPart Enum 명칭으로 변환 (백엔드 도메인과 일치)
+    const partMapping = {
+      "머리": "HEAD",
+      "가슴/배": "CHEST",
+      "팔": "ARM",
+      "다리": "LEG",
+      "몸체": "BODY"
+    };
 
-  // 2. 백엔드 ReportRequest 형식에 맞게 데이터 포장
-  const reportRequest = {
-    userId: 1, // 테스트용 (나중에 로그인/유저 생성 후 받은 ID 사용)
-    bodyPart: partMapping[state.part] || "HEAD",
-    intensity: String(state.level), // 백엔드가 String으로 받음
-    symptomIcon: selectedSymptoms[0] // 일단 첫 번째 증상을 아이콘명으로 활용
-  };
+    // 2. 백엔드 ReportRequest 형식에 맞게 데이터 포장
+    const reportRequest = {
+      // 로그인 시 저장된 ID를 사용하거나 없으면 테스트용 1번 사용
+      userId: Number(localStorage.getItem('userId')) || 1,
+      bodyPart: partMapping[currentPart] || "BODY",
+      intensity: `${state?.level || 3}단계`,
+      symptomIcon: selectedSymptoms.join(", ") // 선택한 모든 증상을 텍스트로 합쳐서 전달
+    };
 
-  // 3. 로딩 페이지로 이동하면서 이 데이터를 넘겨줌
-  navigate('/loading', { state: { reportRequest, fullSymptoms: selectedSymptoms } });
-};
+    // 3. 로딩 페이지로 이동하면서 백엔드에 보낼 '데이터'를 통째로 넘겨줌
+    navigate('/loading', {
+      state: {
+        reportRequest: reportRequest,
+        originalData: state // 이전 단계 데이터 백업
+      }
+    });
+  };
 
   return (
-      <Layout title="어떻게 아픈가요?" showBack={true}>
-        <ProgressBar step={3} />
-        <Container>
-          <div style={{ marginBottom: '24px' }}>
-            <h2 style={{ fontSize: '28px', fontWeight: '900' }}>어떻게 아파요?</h2>
-            <p style={{ fontSize: '18px', color: '#636E72' }}>그림을 보고 골라보세요.</p>
-          </div>
+    <Layout title="어떻게 아픈가요?" showBack={true}>
+      <ProgressBar step={3} />
+      <Container>
+        <div style={{ marginBottom: '24px' }}>
+          <h2 style={{ fontSize: '28px', fontWeight: '900' }}>어떻게 아파요?</h2>
+          <p style={{ fontSize: '18px', color: '#636E72' }}>증상을 골라주세요. (여러 개 가능)</p>
+        </div>
 
-          <SymptomGrid>
-            {options.map((item) => (
-              <PictogramButton
-                key={item.id}
-                $isSelected={selectedSymptoms.includes(item.label)}
-                onClick={() => toggleSymptom(item.label)}
-              >
-                <img src={item.img} alt={item.label} />
-                <span>{item.label}</span>
-              </PictogramButton>
-            ))}
-          </SymptomGrid>
+        <SymptomGrid>
+          {options.map((label, index) => (
+            <PictogramButton
+              key={index}
+              $isSelected={selectedSymptoms.includes(label)}
+              onClick={() => toggleSymptom(label)}
+            >
+              {/* 이미지 경로가 아직 없다면 임시 아이콘 사용 */}
+              <div className="icon">🤕</div>
+              <span>{label}</span>
+            </PictogramButton>
+          ))}
+        </SymptomGrid>
 
-          <BottomButton
-            disabled={selectedSymptoms.length === 0}
-            onClick={handleNext}
-          >
-            진단 시작하기
-          </BottomButton>
-        </Container>
-      </Layout>
-    );
+        <BottomButton
+          disabled={selectedSymptoms.length === 0}
+          onClick={handleNext}
+        >
+          진단 시작하기
+        </BottomButton>
+      </Container>
+    </Layout>
+  );
 };
 
 export default Step3Detail;

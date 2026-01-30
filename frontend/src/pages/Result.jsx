@@ -1,166 +1,159 @@
-import React from 'react';
+import React, { useEffect, useState } from 'react';
 import { useLocation, useNavigate } from 'react-router-dom';
 import styled from 'styled-components';
+import { QRCodeCanvas } from 'qrcode.react';
 import Layout from '../components/common/Layout';
 import { BottomButton } from '../components/common/Button';
+import { getReportDetail } from '../api/reportService';
 
+// --- Styled Components ---
 const Container = styled.div`
   flex: 1;
   padding: 20px;
-  background-color: #f8f9fa; /* 조금 더 밝은 톤으로 변경 */
+  background-color: #f8f9fa;
   display: flex;
   flex-direction: column;
   align-items: center;
-  /* 모바일 화면에서 하단 버튼 공간 확보 */
-  padding-bottom: 40px;
+  padding-bottom: 60px;
 `;
 
+/* 🚦 사용자용: 건강 신호등 섹션 */
+const TrafficLightContainer = styled.div`
+  width: 100%;
+  max-width: 480px;
+  padding: 24px;
+  background: white;
+  border-radius: 32px;
+  margin-bottom: 20px;
+  text-align: center;
+  border: 5px solid ${props => props.$color};
+  box-shadow: 0 10px 20px rgba(0,0,0,0.05);
+  transition: all 0.5s ease;
+`;
+
+const StatusIcon = styled.div` font-size: 64px; margin-bottom: 12px; `;
+const StatusText = styled.h2`
+  font-size: 26px; font-weight: 900; color: ${props => props.$color}; margin-bottom: 8px;
+`;
+
+/* 📄 의료진용: 리포트 카드 */
 const ReportCard = styled.div`
   width: 100%;
-  max-width: 450px; /* 너무 퍼지지 않게 제한 */
+  max-width: 480px;
   background: white;
-  border-radius: 28px;
+  border-radius: 32px;
   padding: 32px 24px;
-  box-shadow: 0 15px 35px rgba(0,0,0,0.08);
-  position: relative;
+  box-shadow: 0 20px 40px rgba(0,0,0,0.1);
   border: 1px solid #edf2f7;
-
-  &::before {
-    content: '';
-    position: absolute;
-    top: 0; left: 0; right: 0;
-    height: 10px;
-    background: linear-gradient(90deg, #4DB6AC, #80CBC4);
-  }
 `;
 
-const Header = styled.div`
-  text-align: center;
-  margin-bottom: 28px;
-  border-bottom: 2px dashed #e2e8f0;
-  padding-bottom: 24px;
+const QRWrapper = styled.div`
+  background: #f7fafc;
+  padding: 20px;
+  border-radius: 24px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  margin-bottom: 24px;
+  border: 2px dashed #cbd5e0;
 
-  h2 { font-size: 26px; font-weight: 900; color: #1a202c; margin-bottom: 10px; }
-  p { color: #718096; font-size: 15px; font-weight: 500; }
+  p { font-size: 14px; font-weight: 800; color: #4A5568; margin-top: 12px; }
 `;
 
 const InfoGrid = styled.div`
-  display: grid;
-  grid-template-columns: 1fr 1fr;
-  gap: 16px;
-  margin-bottom: 28px;
+  display: grid; grid-template-columns: 1fr 1fr; gap: 12px; margin-bottom: 20px;
 `;
 
 const InfoItem = styled.div`
-  background: #f7fafc;
-  padding: 18px 12px;
-  border-radius: 20px;
-  text-align: center;
-  border: 1px solid #edf2f7;
-
-  .label { font-size: 13px; color: #718096; margin-bottom: 6px; font-weight: 600; }
-  .value { font-size: 20px; font-weight: 800; color: #2d3748; }
-`;
-
-const DiagnosisBox = styled.div`
-  background: #f0fff4; /* 연한 초록색 배경으로 변경 (긍정적 신호) */
-  border-radius: 24px;
-  padding: 24px;
-  margin-bottom: 28px;
-  border: 1px solid #c6f6d5;
-
-  h3 { font-size: 17px; color: #2f855a; margin-bottom: 12px; font-weight: 800; }
-  p { font-size: 19px; font-weight: 700; color: #276749; line-height: 1.6; word-break: keep-all; }
-`;
-
-const AdviceBox = styled.div`
-  padding: 0 4px;
-  h3 { font-size: 17px; color: #2d3748; margin-bottom: 16px; font-weight: 800; }
-  .content {
-    font-size: 16px;
-    line-height: 1.8;
-    color: #4a5568;
-    white-space: pre-wrap;
-    /* 리스트 스타일 가독성 높이기 */
-    background: #ffffff;
-    padding: 10px;
-  }
+  background: #f8fafc; padding: 15px; border-radius: 20px; text-align: center;
+  .label { font-size: 13px; color: #718096; margin-bottom: 4px; font-weight: 700; }
+  .value { font-size: 18px; font-weight: 900; color: #2d3748; }
 `;
 
 const Result = () => {
   const navigate = useNavigate();
   const { state } = useLocation();
+  const [result, setResult] = useState(null);
+  const [loading, setLoading] = useState(true);
 
-  // 백엔드 또는 가짜 데이터에서 result 추출
-  const result = state?.result;
+  // 1. 상태 판별 로직 (신호등 색상 설정)
+  const getStatus = (intensity) => {
+    const val = parseInt(intensity) || 3;
+    if (val <= 1) return { color: '#4ADE80', icon: '😊', msg: '천천히 쉬면 괜찮아질 거예요', doctor: '경증' };
+    if (val <= 3) return { color: '#FACC15', icon: '😟', msg: '의사 선생님께 꼭 보여주세요', doctor: '관찰 요망' };
+    return { color: '#F87171', icon: '🚑', msg: '지금 바로 도움이 필요해요!', doctor: '긴급 진료 권장' };
+  };
 
-  if (!result) {
-    return (
-      <Layout title="알림">
-        <Container>
-          <div style={{ textAlign: 'center', marginTop: '100px' }}>
-            <span style={{ fontSize: '60px' }}>⚠️</span>
-            <h2 style={{ marginTop: '20px', fontWeight: 800 }}>결과를 가져오지 못했어요</h2>
-            <p style={{ color: '#718096', marginTop: '10px' }}>처음부터 다시 진행해주세요.</p>
-          </div>
-          <BottomButton onClick={() => navigate('/')} style={{ marginTop: '40px' }}>
-            처음으로 돌아가기
-          </BottomButton>
-        </Container>
-      </Layout>
-    );
-  }
+  useEffect(() => {
+    const loadData = async () => {
+      try {
+        const id = state?.reportId || 101; // 테스트용 ID
+        const data = await getReportDetail(id);
+        setResult(data);
+      } catch (err) {
+        console.error("데이터 로드 실패");
+      } finally {
+        setLoading(false);
+      }
+    };
+    loadData();
+  }, [state]);
+
+  if (loading) return <Container>AI 분석 중...</Container>;
+
+  const status = getStatus(result?.intensity);
+  // 의사용 웹페이지 주소 (본인 IP로 수정 필요)
+  const doctorLink = `http://192.168.0.XX:3000/doctor-view/${result?.id}`;
 
   return (
-    <Layout title="내 진단 결과" showBack={false}>
+    <Layout title="나의 건강 신호등" showBack={false}>
       <Container>
+        {/* 🚦 환자용 직관적 지표 */}
+        <TrafficLightContainer $color={status.color}>
+          <StatusIcon>{status.icon}</StatusIcon>
+          <StatusText $color={status.color}>{status.msg}</StatusText>
+          <p style={{color: '#718096', fontSize: '15px', fontWeight: '600'}}>
+            내 몸이 보내는 신호예요
+          </p>
+        </TrafficLightContainer>
+
+        {/* 📄 의사용 QR 리포트 */}
         <ReportCard>
-          <Header>
-            <h2>AI 건강 소견서</h2>
-            <p>{new Date(result.createdAt).toLocaleDateString()} 분석 완료</p>
-          </Header>
+          <div style={{ textAlign: 'center', marginBottom: '20px' }}>
+            <span style={{ fontSize: '14px', color: '#4DB6AC', fontWeight: '900' }}>MEDICAL QR REPORT</span>
+            <h3 style={{ fontSize: '20px', fontWeight: '900', marginTop: '5px' }}>의사 선생님 확인용</h3>
+          </div>
+
+          <QRWrapper>
+            <QRCodeCanvas value={doctorLink} size={160} />
+            <p>이 화면을 의사 선생님께 보여주세요</p>
+          </QRWrapper>
 
           <InfoGrid>
             <InfoItem>
-              <div className="label">아픈 부위</div>
-              <div className="value">{result.bodyPartKorean}</div>
+              <div className="label">아픈 곳</div>
+              <div className="value">{result?.bodyPartKorean}</div>
             </InfoItem>
             <InfoItem>
-              <div className="label">통증 강도</div>
-              <div className="value" style={{ color: result.intensity >= 4 ? '#e53e3e' : '#dd6b20' }}>
-                {result.intensity} / 5
-              </div>
+              <div className="label">아픈 정도</div>
+              <div className="value">{result?.intensity}</div>
             </InfoItem>
           </InfoGrid>
 
-          <DiagnosisBox>
-            <h3>🔍 AI 분석 내용</h3>
-            <p>{result.aiDiagnosis || "분석 결과를 생성 중입니다."}</p>
-          </DiagnosisBox>
-
-          <AdviceBox>
-            <h3>💡 이렇게 해보세요!</h3>
-            <div className="content">
-              • 무리한 움직임은 피하고 안정을 취하세요.<br />
-              • 통증이 심해지면 즉시 병원을 방문하세요.<br />
-              • 따뜻한 물을 마시고 푹 쉬는 것이 좋아요.
-            </div>
-          </AdviceBox>
+          <div style={{ background: '#f1f5f9', padding: '15px', borderRadius: '15px', fontSize: '14px', color: '#475569' }}>
+             <b>💡 환자 소통 팁:</b> {result?.communicationTip || "질문 후 대답까지 5초 이상 기다려주세요."}
+          </div>
         </ReportCard>
 
-        <div style={{ marginTop: '30px', width: '100%', display: 'flex', gap: '12px' }}>
+        <div style={{ marginTop: '30px', width: '100%', display: 'flex', gap: '12px', maxWidth: '480px' }}>
           <BottomButton
-            style={{ flex: 1, backgroundColor: '#cbd5e0', color: '#4a5568' }}
+            style={{ flex: 1, backgroundColor: '#CBD5E0', color: '#4A5568' }}
             onClick={() => navigate('/')}
-          >
-            다시 하기
-          </BottomButton>
+          >다시 하기</BottomButton>
           <BottomButton
             style={{ flex: 2 }}
-            onClick={() => alert('이미지로 저장 기능은 현재 준비 중입니다!')}
-          >
-            결과 저장하기
-          </BottomButton>
+            onClick={() => alert('사진첩에 저장되었습니다!')}
+          >사진으로 저장하기</BottomButton>
         </div>
       </Container>
     </Layout>
