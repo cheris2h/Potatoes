@@ -4,11 +4,7 @@ spring:
   profiles:
     include: api
 
-google:
-  genai:
-    model: "gemini-1.5-flash"
-
-  # H2 데이터베이스 설정 (해커톤 꿀조합)
+  # H2 데이터베이스 설정 (spring 하위로 이동)
   datasource:
     url: jdbc:h2:mem:potatoesdb
     driver-class-name: org.h2.Driver
@@ -17,14 +13,19 @@ google:
 
   h2:
     console:
-      enabled: true # 브라우저에서 DB 확인 가능
+      enabled: true
       path: /h2-console
 
-  # JPA 설정
+  # JPA 설정 (spring 하위로 이동)
   jpa:
     hibernate:
-      ddl-auto: update # 엔티티 수정 시 DB 테이블 자동 반영
-    show-sql: true # 실행되는 SQL 로그 출력
+      ddl-auto: update
+    show-sql: true
     properties:
       hibernate:
-        format_sql: true # SQL 예쁘게 출력
+        format_sql: true
+
+# Google 설정은 spring과 별개이므로 맨 밖으로!
+google:
+  genai:
+    model: "gemini-1.5-flash"g
