@@ -1,8 +1,24 @@
-import React,{useState} from 'react';
+import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
-import styled from 'styled-components';
+import styled, { keyframes } from 'styled-components';
 import Layout from '../components/common/Layout';
 import { BottomButton } from '../components/common/Button';
+import DatePicker from 'react-datepicker';
+import 'react-datepicker/dist/react-datepicker.css';
+
+/* ================= 애니메이션 ================= */
+const fadeUp = keyframes`
+  from {
+    opacity: 0;
+    transform: translateY(24px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+`;
+
+/* ================= 스타일 ================= */
 
 const Container = styled.div`
   flex: 1;
@@ -11,25 +27,52 @@ const Container = styled.div`
   align-items: center;
   justify-content: center;
   padding: 20px;
-  /* 하단 버튼 위치를 고려하여 중앙을 잡아줍니다 */
-  min-height: calc(100vh - 200px);
+  transform: translateY(-40px);
 `;
 
-// ProgressBar와 동일한 굵기(4px)와 느낌을 주는 회색 선
-const ThickDivider = styled.div`
-  width: 100%;
-  height: 4px;             /* 선의 굵기를 Step1 ProgressBar와 맞춤 */
-  background-color: #F1F2F6; /* 부드러운 회색 */
-  margin: 0;               /* 레이아웃 바닥에 딱 붙게 설정 */
+const BrandSection = styled.div`
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  margin-bottom: 70px;
 `;
 
-const IconWrapper = styled.div`
-  font-size: 80px;
-  margin-bottom: 15px;
+const Brand = styled.div`
+  font-size: 42px;
+  font-weight: 900;
+  color: #2ed8b6;
+  letter-spacing: -0.5px;
+
+  opacity: 0;
+  animation: ${fadeUp} 1.3s ease-out forwards;
 `;
-const Input = styled.input`
+
+const Subtitle = styled.p`
+  margin-top: 14px;
+  font-size: 17px;
+  color: #636e72;
+  text-align: center;
+  line-height: 1.6;
+
+  opacity: 0;
+  animation: ${fadeUp} 1.3s ease-out forwards;
+  animation-delay: 0.7s;
+`;
+
+const FormWrapper = styled.div`
   width: 100%;
   max-width: 360px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+
+  opacity: 0;
+  animation: ${fadeUp} 1.3s ease-out forwards;
+  animation-delay: 1.6s;
+`;
+
+const Input = styled.input`
+  width: 100%;
   height: 48px;
   border-radius: 12px;
   border: 1px solid #dfe6e9;
@@ -37,53 +80,67 @@ const Input = styled.input`
   font-size: 16px;
   margin-bottom: 14px;
 `;
-const TitleSection = styled.div`
-  text-align: center;
-  margin-bottom: 60px;
 
-  h1 {
-    font-size: 32px;
-    font-weight: 800;
-    color: #2D3436;
-    margin: 0;
+/* 🔥 DatePicker를 Input처럼 보이게 감싸는 래퍼 */
+const DatePickerWrapper = styled.div`
+  width: 100%;
+  margin-bottom: 14px;
+
+  .react-datepicker-wrapper {
+    width: 100%;
   }
-  p {
-    color: #636E72;
-    margin-top: 12px;
+
+  .react-datepicker__input-container input {
+    width: 100%;
+    height: 48px;
+    border-radius: 12px;
+    border: 1px solid #dfe6e9;
+    padding: 0 12px;
     font-size: 16px;
-    line-height: 1.6;
   }
 `;
 
+/* ================= 컴포넌트 ================= */
+
 const SignUp = () => {
   const navigate = useNavigate();
-  const [name,setName]=useState('');
-  const[birth,setBirth]=useState('');
+  const [name, setName] = useState('');
+  const [birth, setBirth] = useState(null);
+
   return (
     <Layout title="회원가입" showBack={false}>
-      {/* 1. 홈 글자 바로 아래에 오는 굵은 회색 선 */}
-      <ThickDivider />
-
       <Container>
-        
-          <Input
-          placeholder="이름 입력"
-          value={name}
-          onChange={(e) => setName(e.target.value)}
-        />
-        <Input
-          type="date"
-          value={birth}
-          onChange={(e) => setBirth(e.target.value)}
-        />
+        <BrandSection>
+          <Brand>아프닥</Brand>
+          <Subtitle>
+            누구나 쉽게, 차별 없이<br />
+            건강을 확인하세요.
+          </Subtitle>
+        </BrandSection>
 
-       
-       
-        {/* 4. 진료 시작 버튼 */}
-        <BottomButton onClick={() => navigate('/SignUp2')}>
-          →
-        </BottomButton>
-        
+        <FormWrapper>
+          <Input
+            placeholder="이름 입력"
+            value={name}
+            onChange={(e) => setName(e.target.value)}
+          />
+
+          {/* ✅ 오늘 / 삭제 없는 커스텀 날짜 입력 */}
+          <DatePickerWrapper>
+            <DatePicker
+              selected={birth}
+              onChange={(date) => setBirth(date)}
+              placeholderText="생년월일 선택"
+              dateFormat="yyyy-MM-dd"
+              showPopperArrow={false}
+              maxDate={new Date()}
+            />
+          </DatePickerWrapper>
+
+          <BottomButton onClick={() => navigate('/SignUp2')}>
+            다음 단계로
+          </BottomButton>
+        </FormWrapper>
       </Container>
     </Layout>
   );
