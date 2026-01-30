@@ -77,7 +77,7 @@ const Home = () => {
         </IconWrapper>
 
         <TitleSection>
-          <h1>모두닥</h1>
+          <h1>아프닥</h1>
           <p>
             간편한 자가 진단으로<br />
             나의 건강 상태를 확인하세요.
