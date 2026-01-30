@@ -54,12 +54,10 @@ public class DiagnosisService {
             Client client = Client.builder().apiKey(apiKey).build();
 
             String prompt = String.format(
-                    "너는 노인 건강 전문의야. 아래 환자의 상태를 분석해서 어르신께 드리는 따뜻한 조언 3줄을 써줘.\n" +
-                            "부위: %s, 강도: %s, 증상: %s\n\n" +
-                            "--- 응답 규칙 (매우 중요) ---\n" +
-                            "1. 조언을 모두 작성한 뒤 반드시 '이상입니다.'라는 문구로 끝낼 것.\n" +
-                            "2. 그 바로 뒤에 위험도 점수(0~100 사이의 숫자)만 딱 하나 적을 것.\n" +
-                            "예시: ~보셔요. 이상입니다. 75",
+                    "아래 환자의 상태를 분석해서 의사나 간호사 분들이 보고 현재 환자의 상태를 잘 알수 있도록 자세하게 설명해줘\n" +
+                            "전문 용어 같은거 들어가도 상관없으니까 최대한 환자의 상태를 잘 설명할 수 있도록 설명하면돼\n" +
+                            "추가로 진단이 모두 끝나면 너가 한 진단과 환자의 상태를 고려해서 0~100점까지 위험 점수를 무조건 꼭! 매겨줘" +
+                            "부위: %s, 강도: %s, 증상: %s\n\n",
                     reportRequest.getBodyPart().getKoreanName(),
                     reportRequest.getIntensity(),
                     reportRequest.getSymptomIcon()
