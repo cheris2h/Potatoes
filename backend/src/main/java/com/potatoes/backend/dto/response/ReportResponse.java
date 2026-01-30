@@ -2,7 +2,7 @@ package com.potatoes.backend.dto.response;
 
 import com.potatoes.backend.domain.Report;
 import lombok.Getter;
-import java.time.LocalDateTime;
+import java.time.format.DateTimeFormatter;
 
 @Getter
 public class ReportResponse {
@@ -10,7 +10,8 @@ public class ReportResponse {
     private final String bodyPartKorean;
     private final String intensity;
     private final String aiDiagnosis;
-    private final LocalDateTime createdAt;
+    private final String createdAt;
+    private final Integer weight;
 
     public ReportResponse(Report report) {
         this.id = report.getId();
@@ -18,6 +19,7 @@ public class ReportResponse {
         this.bodyPartKorean = report.getBodyPart().getKoreanName();
         this.intensity = report.getIntensity();
         this.aiDiagnosis = report.getAiDiagnosis();
-        this.createdAt = report.getCreatedAt();
+        this.createdAt = report.getCreatedAt().format(DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm"));
+        this.weight = report.getWeight();
     }
 }

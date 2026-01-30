@@ -35,12 +35,16 @@ public class DiagnosisService {
 
         String aiAnswer = callAi(reportRequest);
 
+        String[] parts = aiAnswer.split("이상입니다.");
+        int weight = Integer.parseInt(parts[1].replaceAll("[^0-9]", ""));
+
         Report report = Report.builder()
                 .user(user)
                 .bodyPart(reportRequest.getBodyPart())
                 .symptomIcon(reportRequest.getSymptomIcon())
                 .intensity(reportRequest.getIntensity())
-                .aiDiagnosis(aiAnswer)
+                .aiDiagnosis(parts[0])
+                .weight(weight)
                 .build();
 
         return reportRepository.save(report).getId();
@@ -51,11 +55,12 @@ public class DiagnosisService {
             Client client = Client.builder().apiKey(apiKey).build();
 
             String prompt = String.format(
-                    "너는 노인 건강 전문의야. 아래 정보를 바탕으로 어르신께 따뜻한 조언 3줄을 해줘.\n" +
-                            "1. 아픈 부위: %s\n" +
-                            "2. 아픈 정도: %s (1~100)\n" +
-                            "3. 증상 아이콘: %s\n\n" +
-                            "말투는 '~하셔요', '~보셔요' 처럼 부드럽게 해줘.",
+                    "너는 노인 건강 전문의야. 아래 환자의 상태를 분석해서 어르신께 드리는 따뜻한 조언 3줄을 써줘.\n" +
+                            "부위: %s, 강도: %s, 증상: %s\n\n" +
+                            "--- 응답 규칙 (매우 중요) ---\n" +
+                            "1. 조언을 모두 작성한 뒤 반드시 '이상입니다.'라는 문구로 끝낼 것.\n" +
+                            "2. 그 바로 뒤에 위험도 점수(0~100 사이의 숫자)만 딱 하나 적을 것.\n" +
+                            "예시: ~보셔요. 이상입니다. 75",
                     reportRequest.getBodyPart().getKoreanName(),
                     reportRequest.getIntensity(),
                     reportRequest.getSymptomIcon()

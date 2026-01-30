@@ -41,13 +41,17 @@ public class Report {
     @Column(updatable = false) // 생성 시간은 수정 불가능
     private LocalDateTime createdAt;
 
+    // 0~100까지 증상의 심각 정도
+    private Integer weight;
+
     @Builder
-    public Report(User user, BodyPart bodyPart, String symptomIcon, String intensity, String aiDiagnosis) {
+    public Report(User user, BodyPart bodyPart, String symptomIcon, String intensity, String aiDiagnosis, Integer weight) {
         this.user = user;
         this.bodyPart = bodyPart;
         this.symptomIcon = symptomIcon;
         this.intensity = intensity;
         this.aiDiagnosis = aiDiagnosis;
         this.createdAt = LocalDateTime.now(); // 생성 시점 자동 기록
+        this.weight = weight;
     }
 }
