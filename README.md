@@ -69,7 +69,8 @@
 ## 📝 설계 문서
   - ERD
 
-<img width="195" height="341" alt="image" src="https://github.com/user-attachments/assets/68af3184-a4ed-41ef-9ee7-146299987b3f" />
+<img width="667" height="701" alt="image" src="https://github.com/user-attachments/assets/4c95d6fc-efa3-4c29-888c-f19929ee6ae0" />
+
 
 
 ## 🛠 개발 환경
@@ -221,10 +222,11 @@
 
 | 이름   | 역할                 |
 | ------ | -------------------- |
-| 신영재 | - Leader, AI, FE, BE <br>    |
-| 윤소연 | - FE, UI/UX <br>                 |
-| 고서영 | - BE, Infra, Slides<br>            |
-| 윤채린 | - BE, FE, UI/UX <br>            |
-| 신지우 | - FE, UI/UX, Docs<br> |
+| 신영재 | - Leader, AI, BE <br>    |
+| 윤소연 | - FE <br>                 |
+| 고서영 | - BE <br>            |
+| 윤채린 | - BE, FE <br>            |
+| 신지우 | - FE, Docs<br> |
 
 <br>
+
