@@ -1,6 +1,12 @@
 spring:
   application:
     name: backend
+  profiles:
+    include: api
+
+google:
+  genai:
+    model: "gemini-1.5-flash"
 
   # H2 데이터베이스 설정 (해커톤 꿀조합)
   datasource:
