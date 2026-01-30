@@ -5,7 +5,7 @@ import Layout from '../components/common/Layout';
 import ProgressBar from '../components/common/ProgressBar';
 import { BottomButton } from '../components/common/Button';
 
-// 부위별 증상 가짜 데이터 (백엔드 전송 및 화면 표시용)
+// 부위별 증상 데이터
 const SYMPTOM_OPTIONS = {
   "머리": ["띵하고 어지러워요", "콕콕 쑤셔요", "무겁고 답답해요", "지끈거려요", "속이 울렁거려요"],
   "가슴/배": ["속이 쓰려요", "콕콕 찔러요", "더부룩해요", "쥐어짜는 듯해요", "가스가 찬 것 같아요"],
@@ -40,7 +40,6 @@ const PictogramButton = styled.button`
   transition: all 0.2s;
   cursor: pointer;
 
-  /* 픽토그램 이미지 대신 임시로 이모지나 아이콘을 크게 쓸 수도 있습니다 */
   .icon {
     font-size: 48px;
     margin-bottom: 12px;
@@ -56,9 +55,10 @@ const PictogramButton = styled.button`
 
 const Step3Detail = () => {
   const navigate = useNavigate();
-  const { state } = useLocation(); // step1(part), step2(level) 데이터
+  const { state } = useLocation();
   const [selectedSymptoms, setSelectedSymptoms] = useState([]);
 
+  // Step1에서 넘어온 한글 부위명 (예: "몸체")
   const currentPart = state?.part || "몸체";
   const options = SYMPTOM_OPTIONS[currentPart] || SYMPTOM_OPTIONS["몸체"];
 
@@ -69,15 +69,28 @@ const Step3Detail = () => {
       setSelectedSymptoms([...selectedSymptoms, symptom]);
     }
   };
-// Step3Detail.jsx 의 handleNext 부분
-const handleNext = () => {
-    // 백엔드 DTO(ReportRequest) 필드명과 100% 일치시킵니다.
-    const reportRequest = {
-      userId: 2,           // Long userId 에 매핑됨
-      bodyPart: state?.bodyPart || "BODY", // Enum BodyPart 에 매핑됨
-      intensity: String(state?.intensity || "3"), // String intensity 에 매핑됨
-      symptomIcon: selectedSymptoms.join(", ")  // String symptomIcon 에 매핑됨
+
+  const handleNext = () => {
+    /**
+     * ⚠️ [핵심 수정] 백엔드 Enum 매핑
+     * 백엔드 로그 확인 결과: [HEAD, CHEST, BACK, LEG_LEFT, ARM_RIGHT, ARM_LEFT, LEG_RIGHT, NECK, SHOULDER, STOMACH] 만 허용됨
+     */
+    const partMapping = {
+      "머리": "HEAD",
+      "가슴/배": "STOMACH",
+      "팔": "ARM_LEFT",
+      "다리": "LEG_LEFT",
+      "몸체": "BACK"        // "BODY" 대신 백엔드가 이해하는 "BACK"으로 전송
     };
+
+    const reportRequest = {
+      userId: 1,
+      bodyPart: partMapping[currentPart] || "BACK",
+      intensity: String(state?.level || "3"),
+      symptomIcon: selectedSymptoms.join(", ")
+    };
+
+    console.log("전송 데이터 확인:", reportRequest);
 
     navigate('/loading', {
       state: {
@@ -102,7 +115,6 @@ const handleNext = () => {
               $isSelected={selectedSymptoms.includes(label)}
               onClick={() => toggleSymptom(label)}
             >
-              {/* 이미지 경로가 아직 없다면 임시 아이콘 사용 */}
               <div className="icon">🤕</div>
               <span>{label}</span>
             </PictogramButton>

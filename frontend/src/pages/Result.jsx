@@ -5,7 +5,7 @@ import { QRCodeCanvas } from 'qrcode.react';
 import Layout from '../components/common/Layout';
 import { BottomButton } from '../components/common/Button';
 
-// --- Styled Components (기존 디자인 유지) ---
+// --- 스타일 컴포넌트 (기존 디자인 유지) ---
 const Container = styled.div`
   flex: 1;
   padding: 20px;
@@ -69,19 +69,27 @@ const Result = () => {
   const navigate = useNavigate();
   const { state } = useLocation();
 
-  // 1. Loading 페이지에서 넘어온 실제 데이터 추출
+  // Loading 페이지에서 넘어온 데이터 (result 객체)
   const result = state?.result;
 
-  // 데이터가 없을 경우 처리
-  if (!result) {
+  // 데이터가 없을 경우 (예: 직접 주소 입력 진입 등)
+  if (!result || typeof result === 'number') {
     return (
-      <Layout title="오류" showBack={true}>
-        <Container>데이터를 찾을 수 없습니다. 다시 시도해주세요.</Container>
+      <Layout title="알림" showBack={true}>
+        <Container>
+          <p style={{textAlign: 'center', marginTop: '50px'}}>
+            분석 데이터를 불러오지 못했습니다.<br/>
+            백엔드 컨트롤러가 객체를 리턴하는지 확인해주세요.
+          </p>
+          <BottomButton onClick={() => navigate('/')} style={{marginTop: '20px'}}>
+            처음으로 이동
+          </BottomButton>
+        </Container>
       </Layout>
     );
   }
 
-  // 2. 상태 판별 로직 (신호등 색상 설정)
+  // 1. 신호등 상태 로직
   const getStatus = (intensity) => {
     const val = parseInt(intensity) || 3;
     if (val <= 1) return { color: '#4ADE80', icon: '😊', msg: '천천히 쉬면 괜찮아질 거예요' };
@@ -91,20 +99,20 @@ const Result = () => {
 
   const status = getStatus(result.intensity);
 
-  // 3. 백엔드 영문 부위명을 한글로 변환
+  // 2. 부위명 한글 변환 매퍼
   const partNameMap = {
     HEAD: "머리", CHEST: "가슴", STOMACH: "배",
-    BACK: "등", ARM_LEFT: "왼팔", ARM_RIGHT: "오른팔",
+    BACK: "몸체/등", ARM_LEFT: "왼팔", ARM_RIGHT: "오른팔",
     LEG_LEFT: "왼다리", LEG_RIGHT: "오른다리", NECK: "목", SHOULDER: "어깨"
   };
 
-  // QR 코드 링크 (로컬 테스트용)
+  // QR 코드에 담길 링크 (실제 배포 시 도메인 주소로 변경 필요)
   const doctorLink = `http://localhost:3000/doctor-view/${result.id}`;
 
   return (
     <Layout title="나의 건강 신호등" showBack={false}>
       <Container>
-        {/* 🚦 환자용 직관적 지표 */}
+        {/* 🚦 환자용 신호등 표시 */}
         <TrafficLightContainer $color={status.color}>
           <StatusIcon>{status.icon}</StatusIcon>
           <StatusText $color={status.color}>{status.msg}</StatusText>
@@ -136,13 +144,14 @@ const Result = () => {
             </InfoItem>
           </InfoGrid>
 
+          {/* AI 진단 결과 섹션 */}
           <div style={{ background: '#f1f5f9', padding: '15px', borderRadius: '15px', fontSize: '14px', color: '#475569', lineHeight: '1.6' }}>
              <b style={{color: '#4DB6AC'}}>🤖 AI 분석 소견:</b><br/>
-             {result.aiDiagnosis || "분석 내용이 생성되지 않았습니다."}
+             {result.aiDiagnosis || "분석 결과를 불러오는 중입니다."}
           </div>
         </ReportCard>
 
-        {/* 하단 버튼 세션 */}
+        {/* 하단 제어 버튼 */}
         <div style={{ marginTop: '30px', width: '100%', display: 'flex', gap: '12px', maxWidth: '480px' }}>
           <BottomButton
             style={{ flex: 1, backgroundColor: '#CBD5E0', color: '#4A5568' }}

@@ -1,10 +1,10 @@
-import React, { useEffect } from 'react';
+import React, { useEffect, useRef } from 'react';
 import { useNavigate, useLocation } from 'react-router-dom';
 import styled, { keyframes } from 'styled-components';
 import Layout from '../components/common/Layout';
 import { createReport } from '../api/reportApi';
 
-// 1. 의사 애니메이션
+// --- 애니메이션 정의 ---
 const doctorAnimation = keyframes`
   0%, 100% { background-image: url('/assets/loading/doctor_loading_1.png'); }
   33% { background-image: url('/assets/loading/doctor_loading_2.png'); }
@@ -16,13 +16,14 @@ const spin = keyframes`
   100% { transform: rotate(360deg); }
 `;
 
+// --- 스타일 컴포넌트 ---
 const LoadingContainer = styled.div`
   flex: 1;
   display: flex;
   flex-direction: column;
   align-items: center;
   justify-content: center;
-  background-color: #ffffff; /* 여기서 배경색을 흰색으로 변경했습니다 */
+  background-color: #ffffff;
   position: relative;
   overflow: hidden;
 `;
@@ -57,38 +58,53 @@ const LoadingText = styled.h2`
 const Loading = () => {
   const navigate = useNavigate();
   const { state } = useLocation();
+  const hasRequested = useRef(false); // StrictMode로 인한 중복 요청 방지
 
   useEffect(() => {
-      const processDiagnosis = async () => {
-        try {
-          console.log("1. 서버로 보내는 데이터:", state?.reportRequest);
+    const processDiagnosis = async () => {
+      // 이미 요청을 보냈다면 중단 (중복 인서트 방지)
+      if (hasRequested.current) return;
+      hasRequested.current = true;
 
-          const responseData = await createReport(state?.reportRequest);
+      try {
+        console.log("1. 서버로 보내는 데이터:", state?.reportRequest);
 
-          console.log("2. 서버에서 받은 응답:", responseData); // 👈 여기서 데이터가 찍히나 보세요!
+        // API 호출 (백엔드에서 리포트 객체 또는 ID를 리턴함)
+        const responseData = await createReport(state?.reportRequest);
 
-          if (!responseData) {
-            throw new Error("서버 응답 데이터가 비어있습니다.");
-          }
+        console.log("2. 서버에서 받은 응답:", responseData);
 
-          // 서버 응답에 따라 형식이 다를 수 있으니 확인 후 전송
-          // 보통 responseData 자체가 리포트 객체일 겁니다.
-          navigate('/result', { state: { result: responseData } });
-
-        } catch (error) {
-          console.error("분석 오류 상세:", error);
-          alert("분석 중 오류가 발생했습니다. 콘솔을 확인해주세요.");
-          navigate('/step3');
+        if (!responseData) {
+          throw new Error("서버 응답 데이터가 없습니다.");
         }
-      };
 
-      if (state?.reportRequest) {
-        processDiagnosis();
-      } else {
-        console.error("전송할 reportRequest가 없습니다!");
+        /**
+         * 💡 중요 로직
+         * 백엔드가 ID(숫자)만 주는지, 객체 전체를 주는지에 따라
+         * Result 페이지에서 다르게 처리할 수 있도록 그대로 넘겨줍니다.
+         */
+        navigate('/result', {
+          state: {
+            result: responseData, // 데이터 전체
+            reportId: typeof responseData === 'number' ? responseData : responseData.id
+          },
+          replace: true // 뒤로가기로 로딩창 다시 진입 방지
+        });
+
+      } catch (error) {
+        console.error("분석 오류 상세:", error);
+        alert("분석 중 오류가 발생했습니다. 다시 시도해 주세요.");
         navigate('/step3');
       }
-    }, [state, navigate]);
+    };
+
+    if (state?.reportRequest) {
+      processDiagnosis();
+    } else {
+      console.warn("전송할 데이터(reportRequest)가 없어 Step3로 되돌아갑니다.");
+      navigate('/step3');
+    }
+  }, [state, navigate]);
 
   return (
     <Layout showBack={false}>
