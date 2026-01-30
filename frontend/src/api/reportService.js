@@ -1,5 +1,7 @@
-// 💡 실제 백엔드 연결할 때만 false로 바꾸세요.
-export const IS_MOCKING = true;
+// src/api/reportService.js
+import { createReport as sendToBackend } from './reportApi'; // 1. 통신 함수 불러오기
+
+export const IS_MOCKING = false; // 2. 실제 백엔드 연동을 위해 false로 변경
 
 /**
  * [가짜 데이터 생성 함수]
@@ -16,12 +18,21 @@ const getMockReport = (id, part = "머리", level = "3단계") => ({
 // 1. 리포트 생성 (전송)
 export const createReport = async (reportData) => {
   console.log("📤 데이터 전송 시도:", reportData);
-  await new Promise(resolve => setTimeout(resolve, 1500)); // 통신 느낌 주기
-  return 101; // 생성된 가짜 리포트 ID 반환
+
+  if (IS_MOCKING) {
+    await new Promise(resolve => setTimeout(resolve, 1500));
+    return 101;
+  }
+
+  // 3. 💡 핵심: 이제 가짜 ID를 주는 대신, 진짜 백엔드 API를 호출합니다!
+  const responseData = await sendToBackend(reportData);
+  return responseData.id; // 백엔드에서 생성된 진짜 Report ID를 반환
 };
 
 // 2. 리포트 상세 조회 (결과창)
 export const getReportDetail = async (id) => {
+  // 💡 상세 조회도 실제 백엔드 API 함수가 있다면 그걸 호출하도록 바꿔야 하지만,
+  // 일단 생성(POST)부터 성공시키고 확인합시다!
   await new Promise(resolve => setTimeout(resolve, 800));
   return getMockReport(id);
 };

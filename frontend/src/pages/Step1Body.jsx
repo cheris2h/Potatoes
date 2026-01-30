@@ -65,10 +65,15 @@ const Step1Body = () => {
 // 수정 (백엔드 로그에 찍힌 허용 값으로 매칭)
 const partMap = {
   "머리": "HEAD",
-  "가슴/배": "STOMACH", // 또는 CHEST
-  "팔": "ARM_LEFT",    // 백엔드 리스트에 있는 ARM_LEFT 또는 ARM_RIGHT 사용
-  "다리": "LEG_LEFT",   // 백엔드 리스트에 있는 LEG_LEFT 또는 LEG_RIGHT 사용
-  "몸체": "CHEST"      // 임시로 CHEST로 매칭
+  "가슴": "CHEST", // 또는 CHEST
+  "배": "STOMACH",    // 백엔드 리스트에 있는 ARM_LEFT 또는 ARM_RIGHT 사용
+  "등": "BACK",   // 백엔드 리스트에 있는 LEG_LEFT 또는 LEG_RIGHT 사용
+  "왼팔": "ARM_LEFT",      // 임시로 CHEST로 매칭
+  "오른팔": "ARM_RIGHT",
+  "왼다리": "LEG_LEFT",
+  "오른다리": "LEG_RIGHT",
+  "어깨": "SHOULDER",
+  "목": "NECK"
 };
 
   const handleBodyClick = (e, partName) => {

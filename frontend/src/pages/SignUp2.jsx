@@ -84,23 +84,25 @@ const SignUp2 = () => {
       emergencyContact: emergencyContact || "보호자 존재 X"
     };
 
+    // SignUp2.jsx 내 handleSignUp 함수 내부 수정
     try {
       const response = await axios.post('http://localhost:8080/api/users/signup', requestBody);
 
       if (response.status === 200) {
-        // 회원가입 후 생성된 id를 저장할 수도 있습니다.
-        const userId = response.data;
-        localStorage.setItem('userId', userId);
+        // 💡 팀장님! 백엔드에서 User 객체를 통째로 주니까 .id를 명시해야 합니다.
+        const userId = response.data.id;
 
-        alert("회원가입이 완료되었습니다!");
-        navigate('/step1');
+        if (userId) {
+          localStorage.setItem('userId', userId); // 이제 진짜 숫자 ID가 저장됩니다.
+          alert("회원가입이 완료되었습니다!");
+          navigate('/step1');
+        }
       }
-    } catch (error) {
+    }catch (error) {
       console.error("회원가입 에러:", error);
       alert("서버 연결에 실패했습니다.");
     }
   };
-
   return (
     <Layout title="회원가입" showBack={true}>
       <ThickDivider />
