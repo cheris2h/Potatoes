@@ -71,14 +71,18 @@
 
 <img width="667" height="701" alt="image" src="https://github.com/user-attachments/assets/4c95d6fc-efa3-4c29-888c-f19929ee6ae0" />
 
+  - 서비스 아키텍처
+
+<img width="737" height="402" alt="image" src="https://github.com/user-attachments/assets/392b1b81-a3c8-4346-85ca-f4a9247bdbf9" />
+
+
 
 
 ## 🛠 개발 환경
 
 ### Backend
   - ![Java](https://img.shields.io/badge/Java-ED8B00?style=for-the-badge&logo=openjdk&logoColor=white)
-  - ![Spring](https://img.shields.io/badge/Spring-6DB33F?style=for-the-badge&logo=spring&logoColor=green)
-  - ![MySQL](https://img.shields.io/badge/MySQL-00000F?style=for-the-badge&logo=mysql&logoColor=blue)
+  - ![Spring](https://img.shields.io/badge/Springboot-6DB33F?style=for-the-badge&logo=spring&logoColor=green)
   - ![IntelliJ](https://img.shields.io/badge/intellijidea-000000.svg?&style=flat-square&logo=node.js&logoColor=white)
 <br>
 
@@ -229,4 +233,5 @@
 | 신지우 | - FE, Docs<br> |
 
 <br>
+
 
