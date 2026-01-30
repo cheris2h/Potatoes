@@ -5,7 +5,7 @@ import Layout from '../components/common/Layout';
 import ProgressBar from '../components/common/ProgressBar';
 import { BottomButton } from '../components/common/Button';
 
-// 부위별 가짜 데이터 (Mock Data)
+// 부위별 증상 가짜 데이터
 const SYMPTOM_OPTIONS = {
   "머리": ["띵하고 어지러워요", "콕콕 쑤셔요", "무겁고 답답해요", "지끈거려요", "속이 울렁거려요"],
   "가슴/배": ["속이 쓰려요", "콕콕 찔러요", "더부룩해요", "쥐어짜는 듯해요", "가스가 찬 것 같아요"],
@@ -43,33 +43,63 @@ const ChipContainer = styled.div`
 `;
 
 const SymptomChip = styled.button`
-  padding: 16px 24px;
+  padding: 14px 22px;
   border-radius: 50px;
   font-size: 16px;
   font-weight: 600;
   transition: all 0.2s ease;
+  cursor: pointer;
+  word-break: keep-all;
 
-  /* 선택 상태에 따른 스타일 */
+  /* 선택 여부에 따른 스타일 분기 */
   background-color: ${props => props.$isSelected ? '#4DB6AC' : 'white'};
   color: ${props => props.$isSelected ? 'white' : '#495057'};
   border: 2px solid ${props => props.$isSelected ? '#4DB6AC' : '#EDF2F7'};
-  box-shadow: ${props => props.$isSelected ? '0 8px 16px rgba(77,182,172,0.2)' : '0 2px 4px rgba(0,0,0,0.02)'};
+  box-shadow: ${props => props.$isSelected ? '0 8px 16px rgba(77,182,172,0.15)' : 'none'};
 
-  &:active {
-    transform: scale(0.95);
+  &:active { transform: scale(0.96); }
+`;
+
+const SymptomGrid = styled.div`
+  display: grid;
+  grid-template-columns: 1fr 1fr; /* 2열로 크게 배치 */
+  gap: 16px;
+  margin-bottom: 40px;
+`;
+
+const PictogramButton = styled.button`
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: 24px 16px;
+  border-radius: 32px;
+  background-color: ${props => props.$isSelected ? '#E0F2F1' : 'white'};
+  border: 4px solid ${props => props.$isSelected ? '#4DB6AC' : '#F1F3F5'};
+  transition: all 0.2s;
+
+  img {
+    width: 80px;  /* 픽토그램을 크게 보여줌 */
+    height: 80px;
+    margin-bottom: 12px;
+  }
+
+  span {
+    font-size: 18px;
+    font-weight: 800;
+    word-break: keep-all;
+    color: ${props => props.$isSelected ? '#00796B' : '#2D3436'};
   }
 `;
 
 const Step3Detail = () => {
   const navigate = useNavigate();
-  const { state } = useLocation(); // { part: "머리", level: 3 }
+  const { state } = useLocation();
   const [selectedSymptoms, setSelectedSymptoms] = useState([]);
 
-  // 이전 단계 데이터가 없을 경우를 대비한 방어 코드
   const currentPart = state?.part || "몸체";
   const options = SYMPTOM_OPTIONS[currentPart] || SYMPTOM_OPTIONS["몸체"];
 
-  // 칩 클릭 핸들러 (중복 선택 가능)
   const toggleSymptom = (symptom) => {
     if (selectedSymptoms.includes(symptom)) {
       setSelectedSymptoms(selectedSymptoms.filter(s => s !== symptom));
@@ -79,7 +109,7 @@ const Step3Detail = () => {
   };
 
   const handleNext = () => {
-    // 최종 데이터를 가지고 로딩 화면으로 이동
+    // 모든 데이터를 합쳐서 Loading 페이지로 이동
     navigate('/loading', {
       state: {
         ...state,
@@ -89,38 +119,36 @@ const Step3Detail = () => {
   };
 
   return (
-    <Layout title="상세 증상" showBack={true}>
-      <ProgressBar step={3} />
+      <Layout title="어떻게 아픈가요?" showBack={true}>
+        <ProgressBar step={3} />
+        <Container>
+          <div style={{ marginBottom: '24px' }}>
+            <h2 style={{ fontSize: '28px', fontWeight: '900' }}>어떻게 아파요?</h2>
+            <p style={{ fontSize: '18px', color: '#636E72' }}>그림을 보고 골라보세요.</p>
+          </div>
 
-      <Container>
-        <QuestionText>
-          {currentPart} 부위가<br />어떻게 아프신가요?
-        </QuestionText>
-        <SubText>가장 비슷한 증상을 모두 골라주세요.</SubText>
+          <SymptomGrid>
+            {options.map((item) => (
+              <PictogramButton
+                key={item.id}
+                $isSelected={selectedSymptoms.includes(item.label)}
+                onClick={() => toggleSymptom(item.label)}
+              >
+                <img src={item.img} alt={item.label} />
+                <span>{item.label}</span>
+              </PictogramButton>
+            ))}
+          </SymptomGrid>
 
-        <ChipContainer>
-          {options.map((symptom, index) => (
-            <SymptomChip
-              key={index}
-              $isSelected={selectedSymptoms.includes(symptom)}
-              onClick={() => toggleSymptom(symptom)}
-            >
-              {symptom}
-            </SymptomChip>
-          ))}
-        </ChipContainer>
-
-        <BottomButton
-          disabled={selectedSymptoms.length === 0}
-          onClick={handleNext}
-        >
-          {selectedSymptoms.length > 0
-            ? `${selectedSymptoms.length}개 선택함 · 진단 시작`
-            : "증상을 선택해주세요"}
-        </BottomButton>
-      </Container>
-    </Layout>
-  );
+          <BottomButton
+            disabled={selectedSymptoms.length === 0}
+            onClick={handleNext}
+          >
+            진단 시작하기
+          </BottomButton>
+        </Container>
+      </Layout>
+    );
 };
 
 export default Step3Detail;
