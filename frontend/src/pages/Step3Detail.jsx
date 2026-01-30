@@ -68,25 +68,37 @@ const Step3Detail = () => {
     } else {
       setSelectedSymptoms([...selectedSymptoms, symptom]);
     }
-  };const handleNext = () => {
-      const partMapping = {
-        "머리": "HEAD", "가슴/배": "STOMACH", "팔": "ARM_LEFT", "다리": "LEG_LEFT", "몸체": "BACK"
-      };
+  };
+const handleNext = () => {
+  // 1. 백엔드 ReportResponse에서 확인된 필드명과 형식을 맞춥니다.
+  const partMapping = {
+    "머리": "HEAD",
+    "가슴/배": "STOMACH",
+    "팔": "ARM_LEFT",
+    "다리": "LEG_LEFT",
+    "몸체": "BACK"
+  };
 
-      // AI에게 보내는 메시지에 "강제 규칙"을 끼워넣습니다.
-      // 백엔드가 split("이상입니다.")를 쓰기 때문에 이 문구가 반드시 포함되어야 합니다.
-      const forcedInstruction = " (주의: 모든 조언을 마친 후 반드시 '이상입니다.'라고 말하고 그 뒤에 위험도 점수 숫자만 적어주세요. 예: 조언내용... 이상입니다. 80)";
+  // 2. 백엔드에서 intensity를 String으로 받는지 확인 (콘솔에 "3"으로 찍혔으므로 String 유지)
+  // 3. userId는 현재 고정값이지만 실제 로그인된 유저 ID가 있다면 그 값을 넣어야 합니다.
+  const reportRequest = {
+    userId: 1,
+    bodyPart: partMapping[currentPart] || "BACK", // 백엔드 내부에서 한글로 변환될 값
+    intensity: String(state?.level || "3"),
+    // 증상들을 콤보로 합쳐서 전달
+    symptomIcon: selectedSymptoms.join(", "),
+    // 백엔드 AI 프롬프트 규칙에 필요한 문구를 포함 (백엔드 로직에 따라 필요시 유지)
+    forcedInstruction: "이상입니다."
+  };
 
-      const reportRequest = {
-        userId: 1,
-        bodyPart: partMapping[currentPart] || "BACK",
-        intensity: String(state?.level || "3"),
-        // 증상 텍스트 뒤에 규칙을 강제로 붙여서 보냅니다.
-        symptomIcon: selectedSymptoms.join(", ") + forcedInstruction
-      };
+  console.log("🚀 Loading으로 넘기는 데이터:", reportRequest);
 
-      navigate('/loading', { state: { reportRequest } });
-    };
+  navigate('/loading', {
+    state: {
+      reportRequest: reportRequest
+    }
+  });
+};
 
   return (
     <Layout title="어떻게 아픈가요?" showBack={true}>
