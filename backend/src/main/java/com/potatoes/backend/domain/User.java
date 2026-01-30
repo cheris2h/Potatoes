@@ -20,17 +20,19 @@ public class User {
 
     private String name;
     private String birth;
-    private Character gender;
+
+    @Enumerated(EnumType.STRING)
+    private Gender gender;
 
     private String emergencyContact = "보호자 존재 X";
 
     @Builder
-    public User(String deviceId, String name, String birth, Character gender, String emergencyContact) {
+    public User(String deviceId, String name, String birth, Gender gender, String emergencyContact) {
         this.deviceId = deviceId;
         this.name = name;
         this.birth = birth;
         this.gender = gender;
-        if (emergencyContact != null) {
+        if (emergencyContact != null && emergencyContact.isEmpty()) {
             this.emergencyContact = emergencyContact;
         }
     }
