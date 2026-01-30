@@ -10,6 +10,7 @@ import org.springframework.data.annotation.CreatedDate;
 
 import java.time.LocalDateTime;
 
+@Table(name = "reports")
 @Entity
 @Getter
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
@@ -37,7 +38,6 @@ public class Report {
     @Column(columnDefinition = "TEXT")
     private String aiDiagnosis;
 
-    @CreatedDate
     @Column(updatable = false) // 생성 시간은 수정 불가능
     private LocalDateTime createdAt;
 
