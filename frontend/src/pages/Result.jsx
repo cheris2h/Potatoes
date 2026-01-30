@@ -151,7 +151,7 @@ const Result = () => {
         <div style={{ marginTop: '30px', width: '100%', display: 'flex', gap: '12px' }}>
           <BottomButton
             style={{ flex: 1, backgroundColor: '#cbd5e0', color: '#4a5568' }}
-            onClick={() => navigate('/')}
+            onClick={() => navigate('/home')}
           >
             다시 하기
           </BottomButton>

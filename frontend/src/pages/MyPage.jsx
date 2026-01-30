@@ -112,7 +112,7 @@ const MyPage = () => {
   ];
 
   return (
-    <Layout title="마이페이지" showBack={true}>
+    <Layout title="마이페이지" showBack={false}>
       <ThickDivider />
       
       <ProfileSection>

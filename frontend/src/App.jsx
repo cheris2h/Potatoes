@@ -6,6 +6,8 @@ import { GlobalStyle } from './styles/GlobalStyle';
 
 // 페이지 컴포넌트 임포트
 import Home from './pages/Home'; // <-- Home 컴포넌트 추가
+import SignUp from './pages/SignUp';
+import SignUp2 from './pages/SignUp2';
 import MyPage from './pages/MyPage';
 import Step1Body from './pages/Step1Body';
 import Step2Level from './pages/Step2Level';
@@ -20,7 +22,9 @@ function App() {
       <BrowserRouter>
         <Routes>
           {/* 1. 앱 실행 시 가장 먼저 보여줄 홈 화면 */}
-          <Route path="/" element={<Home />} />
+          <Route path="/" element={<SignUp />} />
+          <Route path="/home" element={<Home />} />
+          <Route path="/signup2" element={<SignUp2 />} />
           <Route path="/mypage" element={<MyPage />} />
 
           {/* 2. 진료 시작 버튼 클릭 시 이동할 페이지 */}
